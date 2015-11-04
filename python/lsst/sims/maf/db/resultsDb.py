@@ -1,4 +1,6 @@
 import os, warnings
+import pandas as pd
+from collections import OrderedDict
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
 from sqlalchemy.engine import url
@@ -109,7 +111,10 @@ class ResultsDb(object):
                 outDir = '.'
             # Check for output directory, make if needed.
             if not os.path.isdir(outDir):
-                os.makedirs(outDir)
+                try:
+                    os.makedirs(outDir)
+                except OSError, msg:
+                    raise OSError(msg, '\n  (If this was the database file (not outDir), remember to use kwarg "database")')
             self.database =os.path.join(outDir, 'resultsDb_sqlite.db')
             self.driver = 'sqlite'
         else:
@@ -318,16 +323,20 @@ class ResultsDb(object):
             if summaryName is not None:
                 query = query.filter(SummaryStatRow.summaryName == summaryName)
             for m, s in query:
-                summary = {}
-                summary['metricName'] = m.metricName
-                summary['slicerName'] = m.slicerName
-                summary['metricMetadata'] = m.metricMetadata
-                summary['summaryName'] = s.summaryName
-                summary['summaryValue'] = s.summaryValue
-                summarystats.append(summary)
+                summarystats.append((m.metricId, m.metricName, m.slicerName, m.metricMetadata,
+                                     s.summaryName, s.summaryValue))
+        cols = OrderedDict([('metricId', int), ('metricName', str), ('slicerName', str), ('metricMetadata', str),
+                            ('summaryName', str), ('summaryValue', float)])
+        summarystats = pd.DataFrame([xx for xx in summarystats], columns=cols.keys())
+        for c, dt in cols.iteritems():
+            summarystats[c] = summarystats[c].astype(dt)
         return summarystats
 
     def getPlotFiles(self, metricId=None):
+        """
+        Return the metricId, name, metadata, and all plot info for (optional) metricId.
+        Returns a pandas dataframe.
+        """
         if metricId is None:
             metricId = self.getAllMetricIds()
         if not hasattr(metricId, '__iter__'):
@@ -336,19 +345,24 @@ class ResultsDb(object):
         for mid in metricId:
             # Join the metric table and the plot table, based on the metricID (the second filter does the join)
             query = (self.session.query(MetricRow, PlotRow).filter(MetricRow.metricId == mid)
-                     .filter(MetricRow.metricId == plotRow.metricId))
+                     .filter(MetricRow.metricId == PlotRow.metricId))
             for m, p in query:
-                plots = {}
-                plots['metricName'] = m.metricName
-                plots['metricMetadata'] = m.metricMetadata
-                plots['plotType'] = p.plotType
-                plots['plotFile'] = p.plotFile
-                plotFiles.append(plots)
+                thumbfile = 'thumb.' + ''.join(p.plotFile.split('.')[:-1]) + '.png'
+                plotFiles.append((m.metricId, m.metricName, m.metricMetadata, p.plotType, p.plotFile, thumbfile))
+        # Convert to pandas dataframe.
+        cols = OrderedDict([('metricId',int), ('metricName',str), ('metricMetadata', str),
+                            ('plotType', str), ('plotFile', str), ('thumbFile', str)])
+        plotFiles = pd.DataFrame([xx for xx in plotFiles],
+                                 columns=cols.keys())
+        # and cast as the right type (pandas is still a little broken here)
+        for c, dt in cols.iteritems():
+            plotFiles[c] = plotFiles[c].astype(dt)
         return plotFiles
 
     def getMetricDataFiles(self, metricId=None):
         """
         Get the metric data filenames for all or a single metric.
+        Returns a list.
         """
         if metricId is None:
             metricId = self.getAllMetricIds()
@@ -359,3 +373,34 @@ class ResultsDb(object):
             for m in self.session.query(MetricRow).filter(MetricRow.metricId == mid).all():
                 dataFiles.append(m.metricDataFile)
         return dataFiles
+
+
+    def getMetricDisplayInfo(self, metricId=None):
+        """
+        Return the contents of the metrics and displays table, together with the 'basemetricname', in one
+        list.
+        Intended primarily for use for the 'viz' layer.
+        Returns a pandas dataframe.
+        """
+        if metricId is None:
+            metricId = self.getAllMetricIds()
+        if not hasattr(metricId, '__iter__'):
+            metricId = [metricId,]
+        metricInfo = []
+        for mId in metricId:
+            # Query for all rows in metrics and displays that match any of the metricIds.
+            query = (self.session.query(MetricRow, DisplayRow).filter(MetricRow.metricId==mId).filter(MetricRow.metricId==DisplayRow.metricId))
+            for m, d in query:
+                baseMetricName = m.metricName.split('_')[0]
+                mInfo = (m.metricId, m.metricName, baseMetricName, m.slicerName,
+                        m.sqlConstraint, m.metricMetadata, m.metricDataFile,
+                        d.displayGroup, d.displaySubgroup, d.displayOrder, d.displayCaption)
+                metricInfo.append(mInfo)
+        cols = OrderedDict([('metricId', int), ('metricName', str), ('baseMetricNames', str),
+                            ('slicerName', str), ('sqlConstraint', str), ('metricMetadata', str),
+                            ('metricDatafile', str), ('displayGroup', str), ('displaySubgroup', str),
+                            ('displayOrder', float), ('displayCaption', str)])
+        metricInfo = pd.DataFrame([xx for xx in metricInfo], columns=cols.keys())
+        for c, dt in cols.iteritems():
+            metricInfo[c] = metricInfo[c].astype(dt)
+        return metricInfo
