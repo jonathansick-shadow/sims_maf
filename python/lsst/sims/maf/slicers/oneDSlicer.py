@@ -11,8 +11,10 @@ from .baseSlicer import BaseSlicer
 
 __all__ = ['OneDSlicer']
 
+
 class OneDSlicer(BaseSlicer):
     """oneD Slicer."""
+
     def __init__(self, sliceColName=None, sliceColUnits=None,
                  bins=None, binMin=None, binMax=None, binsize=None,
                  verbose=True, badval=0):
@@ -40,9 +42,9 @@ class OneDSlicer(BaseSlicer):
             self.sliceColUnits = co.getUnits(self.sliceColName)
         else:
             self.sliceColUnits = sliceColUnits
-        self.slicer_init = {'sliceColName':self.sliceColName, 'sliceColUnits':sliceColUnits,
-                            'badval':badval}
-        self.plotFuncs = [OneDBinnedData,]
+        self.slicer_init = {'sliceColName': self.sliceColName, 'sliceColUnits': sliceColUnits,
+                            'badval': badval}
+        self.plotFuncs = [OneDBinnedData, ]
 
     def setupSlicer(self, simData, maps=None):
         """
@@ -71,7 +73,7 @@ class OneDSlicer(BaseSlicer):
             self.binMin -= self.binsize
             self.binMax += self.binsize
             if self.bins is not None:
-                warnings.warn('Both binsize and bins have been set; Using binsize %f only.' %(self.binsize))
+                warnings.warn('Both binsize and bins have been set; Using binsize %f only.' % (self.binsize))
             self.bins = np.arange(self.binMin, self.binMax+self.binsize/2.0, self.binsize, 'float')
         # Using bins value.
         else:
@@ -100,14 +102,15 @@ class OneDSlicer(BaseSlicer):
         simFieldsSorted = np.sort(simData[self.sliceColName])
         # "left" values are location where simdata == bin value
         self.left = np.searchsorted(simFieldsSorted, self.bins[:-1], 'left')
-        self.left = np.concatenate((self.left, np.array([len(self.simIdxs),])))
+        self.left = np.concatenate((self.left, np.array([len(self.simIdxs), ])))
         # Set up _sliceSimData method for this class.
+
         @wraps(self._sliceSimData)
         def _sliceSimData(islice):
             """Slice simData on oneD sliceCol, to return relevant indexes for slicepoint."""
             idxs = self.simIdxs[self.left[islice]:self.left[islice+1]]
-            return {'idxs':idxs,
-                    'slicePoint':{'sid':islice, 'binLeft':self.bins[islice]}}
+            return {'idxs': idxs,
+                    'slicePoint': {'sid': islice, 'binLeft': self.bins[islice]}}
         setattr(self, '_sliceSimData', _sliceSimData)
 
     def __eq__(self, otherSlicer):
@@ -125,8 +128,8 @@ class OneDSlicer(BaseSlicer):
                         result = np.all(self.bins == otherSlicer.bins)
                     elif ((self.binsize is not None) and (self.binMin is not None) & (self.binMax is not None) and
                           (otherSlicer.binsize is not None) and (otherSlicer.binMin is not None) and (otherSlicer.binMax is not None)):
-                          if ((self.binsize == otherSlicer.binsize) and
-                              (self.binMin == otherSlicer.binMin) and
-                              (self.binMax == otherSlicer.binMax)):
-                              result = True
+                        if ((self.binsize == otherSlicer.binsize) and
+                                (self.binMin == otherSlicer.binMin) and
+                                (self.binMax == otherSlicer.binMax)):
+                            result = True
         return result

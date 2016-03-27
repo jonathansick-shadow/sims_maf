@@ -39,31 +39,33 @@ def optimalBins(datain, binmin=None, binmax=None, nbinMax=200, nbinMin=1):
     # Check that any good data values remain.
     if data.size == 0:
         nbins = nbinMax
-        warnings.warn('No unmasked data available for calculating optimal bin size: returning %i bins' %(nbins))
+        warnings.warn('No unmasked data available for calculating optimal bin size: returning %i bins' % (nbins))
     # Else proceed.
     else:
         if binmin is None:
             binmin = data.min()
         if binmax is None:
             binmax = data.max()
-        cond = np.where((data >= binmin)  & (data <= binmax))[0]
+        cond = np.where((data >= binmin) & (data <= binmax))[0]
         # Check if any data points remain within binmin/binmax.
         if np.size(data[cond]) == 0:
             nbins = nbinMax
             warnings.warn('No data available for calculating optimal bin size within range of %f, %f'
-                          %(binmin, binmax) + ': returning %i bins' %(nbins))
+                          % (binmin, binmax) + ': returning %i bins' % (nbins))
         else:
             iqr = np.percentile(data[cond], 75) - np.percentile(data[cond], 25)
             binwidth = 2 * iqr * (np.size(data[cond])**(-1./3.))
             nbins = (binmax - binmin) / binwidth
             if nbins > nbinMax:
-                warnings.warn('Optimal bin calculation tried to make %.0f bins, returning %i'%(nbins, nbinMax))
+                warnings.warn('Optimal bin calculation tried to make %.0f bins, returning %i' %
+                              (nbins, nbinMax))
                 nbins = nbinMax
             if nbins < nbinMin:
-                warnings.warn('Optimal bin calculation tried to make %.0f bins, returning %i'%(nbins, nbinMin))
+                warnings.warn('Optimal bin calculation tried to make %.0f bins, returning %i' %
+                              (nbins, nbinMin))
                 nbins = nbinMin
     if np.isnan(nbins):
-        warnings.warn('Optimal bin calculation calculated NaN: returning %i' %(nbinMax))
+        warnings.warn('Optimal bin calculation calculated NaN: returning %i' % (nbinMax))
         nbins = nbinMax
     return int(nbins)
 
@@ -98,7 +100,8 @@ def percentileClipping(data, percentile=95.):
     else:
         min_value = 0
         max_value = 0
-    return  min_value, max_value
+    return min_value, max_value
+
 
 def gnomonic_project_toxy(RA1, Dec1, RAcen, Deccen):
     """
@@ -145,5 +148,5 @@ def radec2pix(nside, ra, dec):
         The healpix ids.
     """
     lat = np.pi/2. - dec
-    hpid = hp.ang2pix(nside, lat, ra )
+    hpid = hp.ang2pix(nside, lat, ra)
     return hpid

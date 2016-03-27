@@ -3,6 +3,7 @@ import numpy as np
 
 __all__ = ['sigma_slope', 'm52snr', 'astrom_precision']
 
+
 def sigma_slope(x, sigma_y):
     """
     Calculate the uncertainty in fitting a line, as
@@ -26,8 +27,9 @@ def sigma_slope(x, sigma_y):
     if denom <= 0:
         return np.nan
     else:
-        result = np.sqrt(np.sum(w)/denom )
+        result = np.sqrt(np.sum(w)/denom)
         return result
+
 
 def m52snr(m, m5):
     """
@@ -51,6 +53,7 @@ def m52snr(m, m5):
     """
     snr = 5.*10.**(-0.4*(m-m5))
     return snr
+
 
 def astrom_precision(fwhm, snr):
     """

@@ -4,6 +4,8 @@ import argparse
 from lsst.sims.maf.viz import MafRunComparison
 
 # Make the output of this file be 'nice' to read back into pandas.
+
+
 def pandaprint(stats):
     for i in range(len(stats)):
         writestring = ''

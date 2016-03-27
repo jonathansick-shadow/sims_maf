@@ -5,10 +5,12 @@ import unittest
 import numpy as np
 import lsst.sims.maf.db as db
 
+
 class TestDb(unittest.TestCase):
+
     def setUp(self):
         self.database = os.path.join(os.getenv('SIMS_MAF_DIR'),
-                                    'tests', 'opsimblitz1_1133_sqlite.db')
+                                     'tests', 'opsimblitz1_1133_sqlite.db')
         self.driver = 'sqlite'
 
     def tearDown(self):
@@ -40,10 +42,10 @@ class TestDb(unittest.TestCase):
         self.assertEqual(basedb.tables, None)
         # Test instantiation with some tables.
         basedb = db.Database(database=self.database, driver=self.driver,
-                             dbTables={'obsHistTable':['ObsHistory', 'obsHistID'],
-                                       'fieldTable':['Field', 'fieldID'],
-                                       'obsHistoryProposalTable':['Obshistory_Proposal',
-                                       'obsHistory_propID']})
+                             dbTables={'obsHistTable': ['ObsHistory', 'obsHistID'],
+                                       'fieldTable': ['Field', 'fieldID'],
+                                       'obsHistoryProposalTable': ['Obshistory_Proposal',
+                                                                   'obsHistory_propID']})
         self.assertEqual(set(basedb.tables.keys()),
                          set(['obsHistTable',
                               'obsHistoryProposalTable', 'fieldTable']))
@@ -66,21 +68,21 @@ class TestDb(unittest.TestCase):
         query += ' where obsHistID = ObsHistory_obsHistID group by Proposal_propID, filter'
         results = table.execute_arbitrary(query)
 
-        #This is a specific case that gave me trouble when refactoring DBObject
-        #Something about the fact that the database was stored in unicode
-        #tripped up numpy.rec.fromrecords().  This test will verify that the
-        #problem has not recurred
+        # This is a specific case that gave me trouble when refactoring DBObject
+        # Something about the fact that the database was stored in unicode
+        # tripped up numpy.rec.fromrecords().  This test will verify that the
+        # problem has not recurred
         query = 'select sessionID, version, sessionDate, runComment from Session'
-        dtype=np.dtype([('id',int),('version',str,256),('date',str,256),('comment',str,256)])
-        results = table.execute_arbitrary(query,dtype=dtype)
-        self.assertTrue(isinstance(results[0][0],int))
-        self.assertTrue(isinstance(results[0][1],str))
-        self.assertTrue(isinstance(results[0][2],str))
-        self.assertTrue(isinstance(results[0][3],str))
-        self.assertEqual(results[0][0],1133)
-        self.assertEqual(results[0][1],'3.1')
-        self.assertEqual(results[0][2],'2014-07-11 17:02:08')
-        self.assertEqual(results[0][3],'all DD + regular survey for 1 lunation')
+        dtype = np.dtype([('id', int), ('version', str, 256), ('date', str, 256), ('comment', str, 256)])
+        results = table.execute_arbitrary(query, dtype=dtype)
+        self.assertTrue(isinstance(results[0][0], int))
+        self.assertTrue(isinstance(results[0][1], str))
+        self.assertTrue(isinstance(results[0][2], str))
+        self.assertTrue(isinstance(results[0][3], str))
+        self.assertEqual(results[0][0], 1133)
+        self.assertEqual(results[0][1], '3.1')
+        self.assertEqual(results[0][2], '2014-07-11 17:02:08')
+        self.assertEqual(results[0][3], 'all DD + regular survey for 1 lunation')
 
 if __name__ == "__main__":
     unittest.main()

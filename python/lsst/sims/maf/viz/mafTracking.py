@@ -6,11 +6,13 @@ from .mafRunResults import MafRunResults
 
 __all__ = ['MafTracking']
 
+
 class MafTracking(object):
     """
     Class to read MAF's tracking SQLite database (tracking a set of MAF runs)
     and handle the output for web display.
     """
+
     def __init__(self, database=None):
         """
         Instantiate the (multi-run) layout visualization class.

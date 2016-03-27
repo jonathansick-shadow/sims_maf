@@ -10,6 +10,7 @@ import glob
 import os
 import shutil
 
+
 class TestMetricBundle(unittest.TestCase):
 
     def setUp(self):
@@ -23,14 +24,14 @@ class TestMetricBundle(unittest.TestCase):
         metric = metrics.MeanMetric(col='airmass')
         sql = 'filter="r"'
 
-        metricB = metricBundles.MetricBundle(metric,slicer,sql)
+        metricB = metricBundles.MetricBundle(metric, slicer, sql)
         filepath = os.path.join(os.getenv('SIMS_MAF_DIR'), 'tests/')
 
         database = os.path.join(filepath, 'opsimblitz1_1133_sqlite.db')
         opsdb = db.OpsimDatabase(database=database)
         resultsDb = db.ResultsDb(outDir=self.outDir)
 
-        bgroup = metricBundles.MetricBundleGroup({0:metricB},opsdb, outDir=self.outDir, resultsDb=resultsDb)
+        bgroup = metricBundles.MetricBundleGroup({0: metricB}, opsdb, outDir=self.outDir, resultsDb=resultsDb)
         bgroup.runAll()
         bgroup.plotAll()
         bgroup.writeAll()

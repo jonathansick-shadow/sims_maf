@@ -12,6 +12,7 @@ import healpy as hp
 from lsst.sims.maf.slicers.healpixSlicer import HealpixSlicer
 from lsst.sims.maf.slicers.uniSlicer import UniSlicer
 
+
 def makeDataValues(size=100, minval=0., maxval=1., ramin=0, ramax=2*np.pi,
                    decmin=-np.pi, decmax=np.pi, random=True):
     """Generate a simple array of numbers, evenly arranged between min/max,
@@ -49,26 +50,29 @@ def makeDataValues(size=100, minval=0., maxval=1., ramin=0, ramax=2*np.pi,
     data.append(dec)
     # Add in rotation angle
     rot = np.random.rand(len(dec))*2*np.pi
-    data.append(np.array(rot, dtype=[('rotSkyPos','float')]))
+    data.append(np.array(rot, dtype=[('rotSkyPos', 'float')]))
     mjd = np.arange(len(dec))*.1
-    data.append(np.array(mjd, dtype=[('expMJD','float')]))
+    data.append(np.array(mjd, dtype=[('expMJD', 'float')]))
     data = rfn.merge_arrays(data, flatten=True, usemask=False)
     return data
+
 
 def calcDist_vincenty(RA1, Dec1, RA2, Dec2):
     """Calculates distance on a sphere using the Vincenty formula.
     Give this function RA/Dec values in radians. Returns angular distance(s), in radians.
     Note that since this is all numpy, you could input arrays of RA/Decs."""
     D1 = (np.cos(Dec2)*np.sin(RA2-RA1))**2 + \
-        (np.cos(Dec1)*np.sin(Dec2) - \
-        np.sin(Dec1)*np.cos(Dec2)*np.cos(RA2-RA1))**2
+        (np.cos(Dec1)*np.sin(Dec2) -
+         np.sin(Dec1)*np.cos(Dec2)*np.cos(RA2-RA1))**2
     D1 = np.sqrt(D1)
-    D2 = (np.sin(Dec1)*np.sin(Dec2) + \
-        np.cos(Dec1)*np.cos(Dec2)*np.cos(RA2-RA1))
-    D = np.arctan2(D1,D2)
+    D2 = (np.sin(Dec1)*np.sin(Dec2) +
+          np.cos(Dec1)*np.cos(Dec2)*np.cos(RA2-RA1))
+    D = np.arctan2(D1, D2)
     return D
 
+
 class TestHealpixSlicerSetup(unittest.TestCase):
+
     def testSlicertype(self):
         """Test instantiation of slicer sets slicer type as expected."""
         testslicer = HealpixSlicer(nside=16, verbose=False)
@@ -87,15 +91,17 @@ class TestHealpixSlicerSetup(unittest.TestCase):
         """Test that if passed an incorrect value for nsides that get expected exception."""
         self.assertRaises(ValueError, HealpixSlicer, nside=3)
 
+
 class TestHealpixSlicerEqual(unittest.TestCase):
+
     def setUp(self):
         self.nside = 16
         self.testslicer = HealpixSlicer(nside=self.nside, verbose=False, lonCol='ra', latCol='dec')
         nvalues = 10000
         self.dv = makeDataValues(size=nvalues, minval=0., maxval=1.,
-                                ramin=0, ramax=2*np.pi,
-                                decmin=-np.pi, decmax=0,
-                                random=True)
+                                 ramin=0, ramax=2*np.pi,
+                                 decmin=-np.pi, decmax=0,
+                                 random=True)
         self.testslicer.setupSlicer(self.dv)
 
     def tearDown(self):
@@ -108,21 +114,22 @@ class TestHealpixSlicerEqual(unittest.TestCase):
         # Note that they are judged equal based on nsides (not on data in ra/dec spatial tree).
         testslicer2 = HealpixSlicer(nside=self.nside, verbose=False, lonCol='ra', latCol='dec')
         self.assertEqual(self.testslicer, testslicer2)
-        assert( (self.testslicer !=  testslicer2) is False)
+        assert((self.testslicer != testslicer2) is False)
         testslicer2 = HealpixSlicer(nside=self.nside/2.0, verbose=False, lonCol='ra', latCol='dec')
         self.assertNotEqual(self.testslicer, testslicer2)
-        assert( (self.testslicer !=  testslicer2) is True )
+        assert((self.testslicer != testslicer2) is True)
 
 
 class TestHealpixSlicerIteration(unittest.TestCase):
+
     def setUp(self):
         self.nside = 8
         self.testslicer = HealpixSlicer(nside=self.nside, verbose=False, lonCol='ra', latCol='dec')
         nvalues = 10000
         self.dv = makeDataValues(size=nvalues, minval=0., maxval=1.,
-                                ramin=0, ramax=2*np.pi,
-                                decmin=-np.pi, decmax=0,
-                                random=True)
+                                 ramin=0, ramax=2*np.pi,
+                                 decmin=-np.pi, decmax=0,
+                                 random=True)
         self.testslicer.setupSlicer(self.dv)
 
     def tearDown(self):
@@ -149,8 +156,10 @@ class TestHealpixSlicerIteration(unittest.TestCase):
         for i, s in enumerate(self.testslicer):
             np.testing.assert_equal(self.testslicer[i], s)
 
+
 class TestHealpixSlicerSlicing(unittest.TestCase):
     # Note that this is really testing baseSpatialSlicer, as slicing is done there for healpix grid
+
     def setUp(self):
         self.nside = 8
         self.radius = 1.8
@@ -159,9 +168,9 @@ class TestHealpixSlicerSlicing(unittest.TestCase):
                                         radius=self.radius)
         nvalues = 10000
         self.dv = makeDataValues(size=nvalues, minval=0., maxval=1.,
-                                ramin=0, ramax=2*np.pi,
-                                decmin=-np.pi, decmax=0,
-                                random=True)
+                                 ramin=0, ramax=2*np.pi,
+                                 decmin=-np.pi, decmax=0,
+                                 random=True)
 
     def tearDown(self):
         del self.testslicer
@@ -177,7 +186,7 @@ class TestHealpixSlicerSlicing(unittest.TestCase):
             ra = s['slicePoint']['ra']
             dec = s['slicePoint']['dec']
             distances = calcDist_vincenty(ra, dec, self.dv['ra'], self.dv['dec'])
-            didxs = np.where(distances<=np.radians(self.radius))
+            didxs = np.where(distances <= np.radians(self.radius))
             sidxs = s['idxs']
             self.assertEqual(len(sidxs), len(didxs[0]))
             if len(sidxs) > 0:
@@ -188,6 +197,7 @@ class TestHealpixSlicerSlicing(unittest.TestCase):
 
 class TestHealpixChipGap(unittest.TestCase):
     # Note that this is really testing baseSpatialSlicer, as slicing is done there for healpix grid
+
     def setUp(self):
         self.nside = 8
         self.radius = 2.041
@@ -197,9 +207,9 @@ class TestHealpixChipGap(unittest.TestCase):
                                         chipNames=['R:1,1 S:1,1'])
         nvalues = 1000
         self.dv = makeDataValues(size=nvalues, minval=0., maxval=1.,
-                                ramin=0, ramax=2*np.pi,
-                                decmin=-np.pi, decmax=0,
-                                random=True)
+                                 ramin=0, ramax=2*np.pi,
+                                 decmin=-np.pi, decmax=0,
+                                 random=True)
 
     def tearDown(self):
         del self.testslicer
@@ -215,15 +225,16 @@ class TestHealpixChipGap(unittest.TestCase):
             ra = s['slicePoint']['ra']
             dec = s['slicePoint']['dec']
             distances = calcDist_vincenty(ra, dec, self.dv['ra'], self.dv['dec'])
-            didxs = np.where(distances<=np.radians(self.radius))
+            didxs = np.where(distances <= np.radians(self.radius))
             sidxs = s['idxs']
             self.assertTrue(len(sidxs) <= len(didxs[0]))
             if len(sidxs) > 0:
                 for indx in sidxs:
-                    self.assertTrue( self.dv['testdata'][indx] in self.dv['testdata'][didxs])
+                    self.assertTrue(self.dv['testdata'][indx] in self.dv['testdata'][didxs])
 
 
 class TestHealpixSlicerPlotting(unittest.TestCase):
+
     def setUp(self):
         self.nside = 16
         self.radius = 1.8
@@ -231,9 +242,9 @@ class TestHealpixSlicerPlotting(unittest.TestCase):
                                         lonCol='ra', latCol='dec', radius=self.radius)
         nvalues = 10000
         self.dv = makeDataValues(size=nvalues, minval=0., maxval=1.,
-                                ramin=0, ramax=2*np.pi,
-                                decmin=-np.pi, decmax=0,
-                                random=True)
+                                 ramin=0, ramax=2*np.pi,
+                                 decmin=-np.pi, decmax=0,
+                                 random=True)
         self.testslicer.setupSlicer(self.dv)
         self.metricdata = ma.MaskedArray(data = np.zeros(len(self.testslicer), dtype='float'),
                                          mask = np.zeros(len(self.testslicer), 'bool'),
@@ -248,11 +259,9 @@ class TestHealpixSlicerPlotting(unittest.TestCase):
                                           mask = np.zeros(len(self.testslicer), 'bool'),
                                           fill_value = self.testslicer.badval)
 
-
     def tearDown(self):
         del self.testslicer
         self.testslicer = None
-
 
 
 if __name__ == "__main__":

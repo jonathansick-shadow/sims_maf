@@ -18,6 +18,7 @@ def makeDataValues(size=100, min=0., max=1., random=True):
     datavalues = np.array(zip(datavalues), dtype=[('testdata', 'float')])
     return datavalues
 
+
 def makeMetricData(slicer, dtype='float'):
     metricValues = np.random.rand(len(slicer)).astype(dtype)
     metricValues = ma.MaskedArray(data=metricValues,
@@ -38,8 +39,9 @@ def makeFieldData():
     fieldRA = np.array(fieldRA, 'float')
     fieldDec = np.array(fieldDec, 'float')
     fieldData = np.core.records.fromarrays([fieldId, fieldRA, fieldDec],
-                                            names = ['fieldID', 'fieldRA', 'fieldDec'])
+                                           names = ['fieldID', 'fieldRA', 'fieldDec'])
     return fieldData
+
 
 def makeOpsimDataValues(fieldData, size=10000, min=0., max=1., random=True):
     """Generate a simple array of numbers, evenly arranged between min/max, but (optional) random order."""
@@ -60,6 +62,7 @@ def makeOpsimDataValues(fieldData, size=10000, min=0., max=1., random=True):
 
 
 class TestJSONoutUniSlicer(unittest.TestCase):
+
     def setUp(self):
         self.testslicer = slicers.UniSlicer()
 
@@ -69,7 +72,7 @@ class TestJSONoutUniSlicer(unittest.TestCase):
     def test(self):
         metricVal = makeMetricData(self.testslicer, 'float')
         io = self.testslicer.outputJSON(metricVal, metricName='testMetric',
-                                    simDataName ='testSim', metadata='testmeta')
+                                        simDataName ='testSim', metadata='testmeta')
         jsn = json.loads(io.getvalue())
         jsn_header = jsn[0]
         jsn_data = jsn[1]
@@ -80,7 +83,9 @@ class TestJSONoutUniSlicer(unittest.TestCase):
         self.assertEqual(jsn_header['slicerLen'], 1)
         self.assertEqual(len(jsn_data), 1)
 
+
 class TestJSONoutOneDSlicer(unittest.TestCase):
+
     def setUp(self):
         # Set up a slicer and some metric data for that slicer.
         dv = makeDataValues(1000)
@@ -103,7 +108,9 @@ class TestJSONoutOneDSlicer(unittest.TestCase):
             self.assertEqual(jsndat[0], binleft)
             self.assertEqual(jsndat[1], mval)
 
+
 class TestJSONoutOneDSlicer(unittest.TestCase):
+
     def setUp(self):
         # Set up a slicer and some metric data for that slicer.
         dv = makeDataValues(1000)
@@ -126,7 +133,9 @@ class TestJSONoutOneDSlicer(unittest.TestCase):
             self.assertEqual(jsndat[0], binleft)
             self.assertEqual(jsndat[1], mval)
 
+
 class TestJSONoutHealpixSlicer(unittest.TestCase):
+
     def setUp(self):
         # Set up a slicer and some metric data for that slicer.
         self.testslicer = slicers.HealpixSlicer(nside=4, verbose=False)
@@ -149,7 +158,9 @@ class TestJSONoutHealpixSlicer(unittest.TestCase):
             self.assertAlmostEqual(jsndat[1], dec/np.pi*180.)
             self.assertEqual(jsndat[2], mval)
 
+
 class TestJSONoutOpsimFieldSlicer(unittest.TestCase):
+
     def setUp(self):
         # Set up a slicer and some metric data for that slicer.
         self.testslicer = slicers.OpsimFieldSlicer()
@@ -174,7 +185,6 @@ class TestJSONoutOpsimFieldSlicer(unittest.TestCase):
             self.assertAlmostEqual(jsndat[0], ra/np.pi*180.)
             self.assertAlmostEqual(jsndat[1], dec/np.pi*180.)
             self.assertEqual(jsndat[2], mval)
-
 
 
 if __name__ == '__main__':

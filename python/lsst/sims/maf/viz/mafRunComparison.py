@@ -5,10 +5,12 @@ from lsst.sims.maf.db import ResultsDb
 
 __all__ = ['MafRunComparison']
 
+
 class MafRunComparison(object):
     """
     Class to read multiple results databases, and find requested summary metric comparisons.
     """
+
     def __init__(self, baseDir, runlist, rundirs=None):
         """
         Set up the runs to compare and opens connections to all resultsDb_sqlite directories under

@@ -76,6 +76,7 @@ class MetricBundleGroup(object):
     dbTable : Optional[str]
         The name of the table in the dbObj to query for data.
     """
+
     def __init__(self, bundleDict, dbObj, outDir='.', resultsDb=None, verbose=True,
                  saveEarly=True, dbTable='Summary'):
         """Set up the MetricBundleGroup.

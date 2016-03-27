@@ -6,7 +6,9 @@ from .plotHandler import BasePlotter
 
 __all__ = ['OneDBinnedData']
 
+
 class OneDBinnedData(BasePlotter):
+
     def __init__(self):
         self.plotType = 'BinnedData'
         self.objectPlotter = False

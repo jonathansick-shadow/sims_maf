@@ -8,7 +8,9 @@ __all__ = ['TwoDMap', 'VisitPairsHist']
 
 perceptual_rainbow = makePRCmap()
 
+
 class TwoDMap(BasePlotter):
+
     def __init__(self):
         self.plotType = 'TwoD'
         self.objectPlotter = False
@@ -88,10 +90,12 @@ class TwoDMap(BasePlotter):
             cb.solids.set_edgecolor("face")
         return figure.number
 
+
 class VisitPairsHist(BasePlotter):
     """
     Given an opsim2dSlicer, figure out what fraction of observations are in singles, pairs, triples, etc.
     """
+
     def __init__(self):
         self.plotType = 'TwoD'
         self.objectPlotter = False

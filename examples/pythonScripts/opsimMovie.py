@@ -5,14 +5,15 @@
 #         the additional frames will be copied to meet the fps requirement. If fps is lower than ips, images will be
 #         removed from the sequence to maintain fps. As a rule of thumb, fps>30 is undetectable to the human eye.
 # --movieLength = can specify the length of the output video (in seconds), then automatically calculate corresponding ips
-#         and fps based on the number of movie slices. 
+#         and fps based on the number of movie slices.
 # --skipComp = skip computing the metrics and generating plots, just use files from disk.
 #
 
-import os, argparse
+import os
+import argparse
 import numpy as np
 #import matplotlib
-#matplotlib.use('Agg')
+# matplotlib.use('Agg')
 import matplotlib.pyplot as plt
 from matplotlib.patches import Circle
 from matplotlib.lines import Line2D
@@ -42,7 +43,7 @@ def getData(opsDb, sqlconstraint):
     # Get data from database.
     simdata = opsDb.fetchMetricData(colnames, sqlconstraint)
     if len(simdata) == 0:
-        raise Exception('No simdata found matching constraint %s' %(sqlconstraint))
+        raise Exception('No simdata found matching constraint %s' % (sqlconstraint))
     # Add stacker columns.
     hourangleStacker = stackers.HourAngleStacker()
     simdata = hourangleStacker.run(simdata)
@@ -51,6 +52,7 @@ def getData(opsDb, sqlconstraint):
     # Fetch field data.
     fields = opsDb.fetchFieldsFromFieldTable()
     return simdata, fields
+
 
 def setupMetrics(opsimName, metadata, plotlabel='', t0=0, tStep=40./24./60./60., years=0,
                  onlyFilterColors=False, verbose=False):
@@ -62,21 +64,22 @@ def setupMetrics(opsimName, metadata, plotlabel='', t0=0, tStep=40./24./60./60.,
     plotDictList = []
     if not onlyFilterColors:
         metricList.append(metrics.CountMetric('expMJD', metricName='Nvisits'))
-        plotDictList.append({'colorMin':0, 'colorMax':nvisitsMax,
-                             'xlabel':'Number of visits', 'title':'Cumulative visits (all bands)',
-                             'label':plotlabel, 'metricIsColor':False})
+        plotDictList.append({'colorMin': 0, 'colorMax': nvisitsMax,
+                             'xlabel': 'Number of visits', 'title': 'Cumulative visits (all bands)',
+                             'label': plotlabel, 'metricIsColor': False})
         for f in (['u', 'g', 'r', 'i', 'z', 'y']):
             metricList.append(metrics.CountSubsetMetric('filter', subset=f, metricName='Nvisits_'+f))
-            plotDictList.append({'colorMin':0, 'colorMax':colorMax, 'cbarFormat': '%d',
-                                 'xlabel':'Number of Visits', 'title':'%s band' %(f),
-                                 'label':plotlabel, 'metricIsColor':False})
+            plotDictList.append({'colorMin': 0, 'colorMax': colorMax, 'cbarFormat': '%d',
+                                 'xlabel': 'Number of Visits', 'title': '%s band' % (f),
+                                 'label': plotlabel, 'metricIsColor': False})
     metricList.append(metrics.FilterColorsMetric(t0=t0, tStep=tStep))
-    plotDictList.append({'title':'Simulation %s: %s' %(opsimName, metadata), 'bgcolor':None,
-                         'metricIsColor':True})
+    plotDictList.append({'title': 'Simulation %s: %s' % (opsimName, metadata), 'bgcolor': None,
+                         'metricIsColor': True})
     dt, t = dtime(t)
     if verbose:
-        print 'Set up metrics %f s' %(dt)
+        print 'Set up metrics %f s' % (dt)
     return metricList, plotDictList
+
 
 def setupMovieSlicer(simdata, bins, verbose=False):
     t = time.time()
@@ -84,8 +87,9 @@ def setupMovieSlicer(simdata, bins, verbose=False):
     movieslicer.setupSlicer(simdata)
     dt, t = dtime(t)
     if verbose:
-        print 'Set up movie slicers in %f s' %(dt)
+        print 'Set up movie slicers in %f s' % (dt)
     return movieslicer
+
 
 def addHorizon(horizon_altitude=np.radians(20.), lat_telescope=Site(name='LSST').latitude_rad, raCen=0.):
     """
@@ -101,7 +105,7 @@ def addHorizon(horizon_altitude=np.radians(20.), lat_telescope=Site(name='LSST')
     # Note that this is not the true observatory longitude, but as long as
     #  we calculate the RA at zenith for this longitude, we can still calculate HA appropriately.
     obs.lon = 0
-    obs.pressure=0
+    obs.pressure = 0
     # Given obs lon at zero, find the equivalent ra overhead.
     zenithra, zenithlat = obs.radec_of(0, 90)
     lon = np.zeros(len(az), float)
@@ -114,17 +118,18 @@ def addHorizon(horizon_altitude=np.radians(20.), lat_telescope=Site(name='LSST')
     lon = -(lon - np.pi) % (np.pi*2) - np.pi
     return lon, lat
 
+
 def runSlices(opsimName, metadata, simdata, fields, bins, args, opsDb, verbose=False):
     # Set up the movie slicer.
     movieslicer = setupMovieSlicer(simdata, bins)
     # Set up formatting for output suffix.
-    sliceformat = '%s0%dd' %('%', int(np.log10(len(movieslicer)))+1)
+    sliceformat = '%s0%dd' % ('%', int(np.log10(len(movieslicer)))+1)
     # Get the telescope latitude info.
     lat_tele = Site(name='LSST').latitude_rad
     # Run through the movie slicer slicePoints and generate plots at each point.
     for i, ms in enumerate(movieslicer):
         t = time.time()
-        slicenumber = sliceformat %(i)
+        slicenumber = sliceformat % (i)
         if verbose:
             print slicenumber
         # Set up metrics.
@@ -139,10 +144,10 @@ def runSlices(opsimName, metadata, simdata, fields, bins, args, opsDb, verbose=F
         # Opsim years are 365 days (not 365.25)
         years = int(times_from_start/365)
         days = times_from_start - years*365
-        plotlabel = 'Year %d Day %.4f' %(years, days)
+        plotlabel = 'Year %d Day %.4f' % (years, days)
         # Set up metrics.
         metricList, plotDictList = setupMetrics(opsimName, metadata, plotlabel=plotlabel,
-                                    t0=ms['slicePoint']['binRight'], tStep=tstep, years=years, verbose=verbose)
+                                                t0=ms['slicePoint']['binRight'], tStep=tstep, years=years, verbose=verbose)
         # Identify the subset of simdata in the movieslicer 'data slice'
         simdatasubset = simdata[ms['idxs']]
         # Set up opsim slicer on subset of simdata provided by movieslicer
@@ -159,7 +164,8 @@ def runSlices(opsimName, metadata, simdata, fields, bins, args, opsDb, verbose=F
             mb.stackerList = []
         bundledict = metricBundles.makeBundlesDictFromList(bundles)
         # Set up metricBundleGroup to handle metrics calculation + plotting
-        bg = metricBundles.MetricBundleGroup(bundledict, opsDb, outDir=args.outDir, resultsDb=None, saveEarly=False)
+        bg = metricBundles.MetricBundleGroup(
+            bundledict, opsDb, outDir=args.outDir, resultsDb=None, saveEarly=False)
         # 'Hack' bundleGroup to just go ahead and run the metrics, without querying the database.
         simData = simdatasubset
         bg.fieldData = fields
@@ -176,7 +182,7 @@ def runSlices(opsimName, metadata, simdata, fields, bins, args, opsDb, verbose=F
         # Create the plot for each metric and save it (after some additional manipulation).
         for mb in bundles:
             ph.setMetricBundles([mb])
-            fignum = ph.plot(plotFunc=plots.BaseSkyMap(), plotDicts={'raCen':raCen})
+            fignum = ph.plot(plotFunc=plots.BaseSkyMap(), plotDicts={'raCen': raCen})
             fig = plt.figure(fignum)
             ax = plt.gca()
             # Add horizon and zenith.
@@ -185,7 +191,8 @@ def runSlices(opsimName, metadata, simdata, fields, bins, args, opsDb, verbose=F
             # For the FilterColors metric, add some extra items.
             if mb.metric.name == 'FilterColors':
                 # Add the time stamp info (plotlabel) with a fancybox.
-                plt.figtext(0.75, 0.9, '%s' %(plotlabel), bbox=dict(boxstyle='Round, pad=0.7', fc='w', ec='k', alpha=0.5))
+                plt.figtext(0.75, 0.9, '%s' % (plotlabel), bbox=dict(
+                    boxstyle='Round, pad=0.7', fc='w', ec='k', alpha=0.5))
                 # Add a legend for the filters.
                 filterstacker = stackers.FilterColorStacker()
                 for i, f in enumerate(['u', 'g', 'r', 'i', 'z', 'y']):
@@ -207,13 +214,14 @@ def runSlices(opsimName, metadata, simdata, fields, bins, args, opsDb, verbose=F
                               label="\nMoon (Dark=Full)\n         (Light=New)")
                 zenith = Line2D([], [], color='k', linestyle='', marker='+', markersize=5, label="Zenith")
                 plt.legend(handles=[horizon, zenith, galaxy, ecliptic, moon], loc=[0.1, -0.35], ncol=3, frameon=False,
-                    title = 'Aitoff plot showing HA/Dec of simulated survey pointings', numpoints=1, fontsize='small')
+                           title = 'Aitoff plot showing HA/Dec of simulated survey pointings', numpoints=1, fontsize='small')
             # Save figure.
-            plt.savefig(os.path.join(args.outDir, mb.metric.name + '_' + slicenumber + '_SkyMap.png'), format='png', dpi=72)
+            plt.savefig(os.path.join(args.outDir, mb.metric.name + '_' +
+                                     slicenumber + '_SkyMap.png'), format='png', dpi=72)
             plt.close('all')
             dt, t = dtime(t)
         if verbose:
-            print 'Ran and plotted slice %s of movieslicer in %f s' %(slicenumber, dt)
+            print 'Ran and plotted slice %s of movieslicer in %f s' % (slicenumber, dt)
 
 
 def stitchMovie(metricList, args):
@@ -224,14 +232,14 @@ def stitchMovie(metricList, args):
         outfileroot = metric.name
         plotfiles = fnmatch.filter(os.listdir(args.outDir), outfileroot + '*_SkyMap.png')
         slicenum = plotfiles[0].replace(outfileroot, '').replace('_SkyMap.png', '').replace('_', '')
-        sliceformat = '%s0%dd' %('%', len(slicenum))
+        sliceformat = '%s0%dd' % ('%', len(slicenum))
         n_images = len(plotfiles)
         if n_images == 0:
-            raise Exception('No images found in %s with name like %s' %(args.outDir, outfileroot))
+            raise Exception('No images found in %s with name like %s' % (args.outDir, outfileroot))
         # Set up ffmpeg parameters.
         # If a movieLength was specified... set args.ips/fps.
         if args.movieLength != 0.0:
-            #calculate images/second rate
+            # calculate images/second rate
             args.ips = n_images/args.movieLength
             print "for a movie length of " + str(args.movieLength) + " IPS set to: ", args.ips
         if args.fps == 0.0:
@@ -242,7 +250,7 @@ def stitchMovie(metricList, args):
                 args.fps = 30.0
         # Create the movie.
         movieslicer.makeMovie(outfileroot, sliceformat, plotType='SkyMap', figformat='png',
-                                outDir=args.outDir, ips=args.ips, fps=args.fps)
+                              outDir=args.outDir, ips=args.ips, fps=args.fps)
 
 if __name__ == '__main__':
 
@@ -270,7 +278,7 @@ if __name__ == '__main__':
     args = parser.parse_args()
 
     start_t = time.time()
-    #cleaning up movie parameters
+    # cleaning up movie parameters
     if args.fps > 30.0:
         warnings.warn('FPS above 30 reduces performance and is undetectable to the human eye. Try lowering the fps.')
 
@@ -278,19 +286,21 @@ if __name__ == '__main__':
     if not os.path.isdir(args.outDir):
         if args.skipComp:
             raise Exception('Skipping metric generation, expect to find plots in %s directory but it does not exist.'
-                            %(args.outDir))
+                            % (args.outDir))
         else:
             os.mkdir(args.outDir)
 
     # Check if user passed directory + filename as opsimDb.
     if len(os.path.dirname(args.opsimDb)) > 0:
-        raise Exception('OpsimDB should be just the filename of the sqlite file (not %s). Use --dbDir.' %(args.opsimDb))
+        raise Exception(
+            'OpsimDB should be just the filename of the sqlite file (not %s). Use --dbDir.' % (args.opsimDb))
 
-    opsimName =  args.opsimDb.replace('_sqlite.db', '')
-    metadata = args.sqlConstraint.replace('=','').replace('filter','').replace("'",'').replace('"','').replace('/','.')
+    opsimName = args.opsimDb.replace('_sqlite.db', '')
+    metadata = args.sqlConstraint.replace('=', '').replace(
+        'filter', '').replace("'", '').replace('"', '').replace('/', '.')
 
     if not args.skipComp:
-        verbose=False
+        verbose = False
         # Get db connection info, and connect to database.
         dbfile = os.path.join(args.dbDir, args.opsimDb)
         oo = db.OpsimDatabase(dbfile)

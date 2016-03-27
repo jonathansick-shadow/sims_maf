@@ -12,8 +12,10 @@ from .baseSlicer import BaseSlicer
 
 __all__ = ['NDSlicer']
 
+
 class NDSlicer(BaseSlicer):
     """Nd slicer (N dimensions)"""
+
     def __init__(self, sliceColList=None, verbose=True, binsList=100):
         """Instantiate object.
         binsList can be a list of numpy arrays with the respective slicepoints for sliceColList,
@@ -32,7 +34,7 @@ class NDSlicer(BaseSlicer):
         if not (isinstance(binsList, float) or isinstance(binsList, int)):
             if len(self.binsList) != self.nD:
                 raise Exception('BinsList must be same length as sliceColNames, unless it is a single value')
-        self.slicer_init={'sliceColList':sliceColList}
+        self.slicer_init = {'sliceColList': sliceColList}
         self.plotFuncs = [TwoDSubsetData, OneDSubsetData]
 
     def setupSlicer(self, simData, maps=None):
@@ -49,7 +51,7 @@ class NDSlicer(BaseSlicer):
                 binMin = sliceCol.min()
                 binMax = sliceCol.max()
                 if binMin == binMax:
-                    warnings.warn('BinMin=BinMax for column %s: increasing binMax by 1.' %(col))
+                    warnings.warn('BinMin=BinMax for column %s: increasing binMax by 1.' % (col))
                     binMax = binMax + 1
                 binsize = (binMax - binMin) / float(bl)
                 bins = np.arange(binMin, binMax + binsize/2.0, binsize, 'float')
@@ -86,11 +88,12 @@ class NDSlicer(BaseSlicer):
             simFieldsSorted = np.sort(simData[sliceColName])
             # "left" values are location where simdata == bin value
             left = np.searchsorted(simFieldsSorted, bins[:-1], 'left')
-            left = np.concatenate((left, np.array([len(simIdxs),])))
+            left = np.concatenate((left, np.array([len(simIdxs), ])))
             # Add these calculated values into the class lists of simIdxs and lefts.
             self.simIdxs.append(simIdxs)
             self.lefts.append(left)
-        @wraps (self._sliceSimData)
+
+        @wraps(self._sliceSimData)
         def _sliceSimData(islice):
             """Slice simData to return relevant indexes for slicepoint."""
             # Identify relevant pointings in each dimension.
@@ -100,10 +103,10 @@ class NDSlicer(BaseSlicer):
             for d, i in zip(range(self.nD), binIdxs):
                 simIdxsList.append(set(self.simIdxs[d][self.lefts[d][i]:self.lefts[d][i+1]]))
             idxs = list(set.intersection(*simIdxsList))
-            return {'idxs':idxs,
-                    'slicePoint':{'sid':islice,
-                                  'binLeft':self.slicePoints['bins'][islice],
-                                  'binIdx':self.slicePoints['binIdxs'][islice]}}
+            return {'idxs': idxs,
+                    'slicePoint': {'sid': islice,
+                                   'binLeft': self.slicePoints['bins'][islice],
+                                   'binIdx': self.slicePoints['binIdxs'][islice]}}
         setattr(self, '_sliceSimData', _sliceSimData)
 
     def __eq__(self, otherSlicer):

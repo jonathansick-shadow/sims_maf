@@ -3,6 +3,7 @@ matplotlib.use("Agg")
 import unittest
 import lsst.sims.maf.utils.opsimUtils as opsimUtils
 
+
 class TestOpsimUtils(unittest.TestCase):
 
     def testScaleBenchmarks(self):
@@ -27,7 +28,7 @@ class TestOpsimUtils(unittest.TestCase):
         coadd = opsimUtils.calcCoaddedDepth(benchmark['nvisits'], benchmark['singleVisitDepth'])
         for f in coadd:
             self.assertTrue(coadd[f] < 1000)
-        singlevisits = {'u':1, 'g':1, 'r':1, 'i':1, 'z':1, 'y':1}
+        singlevisits = {'u': 1, 'g': 1, 'r': 1, 'i': 1, 'z': 1, 'y': 1}
         coadd = opsimUtils.calcCoaddedDepth(singlevisits, benchmark['singleVisitDepth'])
         for f in coadd:
             self.assertAlmostEqual(coadd[f], benchmark['singleVisitDepth'][f])

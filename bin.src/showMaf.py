@@ -11,7 +11,9 @@ import webbrowser
 from lsst.sims.maf.viz import MafTracking
 import lsst.sims.maf.db as db
 
+
 class RunSelectHandler(web.RequestHandler):
+
     def get(self):
         selectTempl = env.get_template("runselect.html")
         if 'runId' in self.request.arguments:
@@ -21,13 +23,17 @@ class RunSelectHandler(web.RequestHandler):
             runId = startRunId
         self.write(selectTempl.render(runlist=runlist, runId=runId, jsPath=jsPath))
 
+
 class MetricSelectHandler(web.RequestHandler):
+
     def get(self):
         selectTempl = env.get_template("metricselect.html")
         runId = int(self.request.arguments['runId'][0])
         self.write(selectTempl.render(runlist=runlist, runId=runId))
 
+
 class MetricResultsPageHandler(web.RequestHandler):
+
     def get(self):
         resultsTempl = env.get_template("results.html")
         runId = int(self.request.arguments['runId'][0])
@@ -42,7 +48,9 @@ class MetricResultsPageHandler(web.RequestHandler):
         self.write(resultsTempl.render(metricIdList=metricIdList, groupList=groupList,
                                        runId=runId, runlist=runlist))
 
+
 class DataHandler(web.RequestHandler):
+
     def get(self):
         runId = int(self.request.arguments['runId'][0])
         metricId = int(self.request.arguments['metricId'][0])
@@ -67,31 +75,40 @@ class DataHandler(web.RequestHandler):
         else:
             self.write('Data type "%s" not understood.' % (datatype))
 
+
 class ConfigPageHandler(web.RequestHandler):
+
     def get(self):
         configTempl = env.get_template("configs.html")
         runId = int(self.request.arguments['runId'][0])
         self.write(configTempl.render(runlist=runlist, runId=runId))
 
+
 class StatPageHandler(web.RequestHandler):
+
     def get(self):
         statTempl = env.get_template("stats.html")
         runId = int(self.request.arguments['runId'][0])
         self.write(statTempl.render(runlist=runlist, runId=runId))
 
+
 class AllMetricResultsPageHandler(web.RequestHandler):
+
     def get(self):
         """Load up the files and display """
         allresultsTempl = env.get_template("allmetricresults.html")
         runId = int(self.request.arguments['runId'][0])
         self.write(allresultsTempl.render(runlist=runlist, runId=runId))
 
+
 class MultiColorPageHandler(web.RequestHandler):
+
     def get(self):
         """Display sky maps. """
         multiColorTempl = env.get_template("multicolor.html")
         runId = int(self.request.arguments['runId'][0])
         self.write(multiColorTempl.render(runlist=runlist, runId=runId))
+
 
 def make_app():
     """The tornado global configuration """

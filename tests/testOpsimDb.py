@@ -6,11 +6,13 @@ import numpy as np
 import lsst.sims.maf.db as db
 import lsst.sims.maf.utils.outputUtils as out
 
+
 class TestOpsimDb(unittest.TestCase):
     """Test opsim specific database class."""
+
     def setUp(self):
-        self.database  = os.path.join(os.getenv('SIMS_MAF_DIR'), 'tests',
-                                      'opsimblitz1_1133_sqlite.db')
+        self.database = os.path.join(os.getenv('SIMS_MAF_DIR'), 'tests',
+                                     'opsimblitz1_1133_sqlite.db')
         self.oo = db.OpsimDatabase(database=self.database)
 
     def tearDown(self):
@@ -25,12 +27,12 @@ class TestOpsimDb(unittest.TestCase):
         self.assertEqual(self.oo.dbTables['Summary'][0], 'Summary')
         # Test can override default table name/id keys if needed.
         oo = db.OpsimDatabase(database=self.database,
-                              dbTables={'Summary':['ObsHistory', 'obsHistID']})
+                              dbTables={'Summary': ['ObsHistory', 'obsHistID']})
         self.assertEqual(oo.dbTables['Summary'][0], 'ObsHistory')
 
     def testOpsimDbMetricData(self):
         """Test queries for sim data. """
-        data = self.oo.fetchMetricData(['finSeeing',], 'filter="r" and finSeeing<1.0')
+        data = self.oo.fetchMetricData(['finSeeing', ], 'filter="r" and finSeeing<1.0')
         self.assertEqual(data.dtype.names, ('obsHistID', 'finSeeing'))
         self.assertTrue(data['finSeeing'].max() <= 1.0)
 

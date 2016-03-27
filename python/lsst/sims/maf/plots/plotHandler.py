@@ -6,16 +6,19 @@ import lsst.sims.maf.utils as utils
 
 __all__ = ['PlotHandler', 'BasePlotter']
 
+
 class BasePlotter(object):
     """
     Serve as the base type for MAF plotters and example of API.
     """
+
     def __init__(self):
         self.plotType = None
         self.defaultPlotDict = None
 
     def __call__(self, metricValue, slicer, userPlotDict, fignum=None):
         pass
+
 
 class PlotHandler(object):
 
@@ -426,7 +429,8 @@ class PlotHandler(object):
             else:
                 displayDict['subgroup'] = list(subgroup)[0]
 
-            displayDict['caption'] = ('%s metric(s) calculated on a %s grid, for opsim runs %s, for metadata values of %s.' % (self.jointMetricNames, self.mBundles[0].slicer.slicerName, self.jointRunNames, self.jointMetadata))
+            displayDict['caption'] = ('%s metric(s) calculated on a %s grid, for opsim runs %s, for metadata values of %s.' % (
+                self.jointMetricNames, self.mBundles[0].slicer.slicerName, self.jointRunNames, self.jointMetadata))
 
             return displayDict
 

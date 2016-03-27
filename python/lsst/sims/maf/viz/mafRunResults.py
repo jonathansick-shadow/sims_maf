@@ -7,12 +7,14 @@ import lsst.sims.maf.metricBundles as metricBundles
 
 __all__ = ['MafRunResults']
 
+
 class MafRunResults(object):
     """
     Class to read MAF's resultsDb_sqlite.db and organize the output for display on web pages.
 
     Deals with a single MAF run (one output directory, one resultsDb) only.
     """
+
     def __init__(self, outDir, runName=None, resultsDb=None):
         """
         Instantiate the (individual run) layout visualization class.

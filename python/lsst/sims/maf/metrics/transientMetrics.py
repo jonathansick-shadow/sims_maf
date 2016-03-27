@@ -7,9 +7,10 @@ class TransientMetric(BaseMetric):
     Calculate what fraction of the transients would be detected. Best paired with a spatial slicer.
     We are assuming simple light curves with no color evolution.
     """
+
     def __init__(self, metricName='TransientDetectMetric', mjdCol='expMJD',
                  m5Col='fiveSigmaDepth', filterCol='filter',
-                 transDuration=10.,peakTime=5., riseSlope=0., declineSlope=0.,
+                 transDuration=10., peakTime=5., riseSlope=0., declineSlope=0.,
                  surveyDuration=10., surveyStart=None, detectM5Plus=0.,
                  uPeak=20, gPeak=20, rPeak=20, iPeak=20, zPeak=20, yPeak=20,
                  nPrePeak=0, nPerLC=1, nFilters=1, nPhaseCheck = 1,
@@ -43,10 +44,10 @@ class TransientMetric(BaseMetric):
         self.mjdCol = mjdCol
         self.m5Col = m5Col
         self.filterCol = filterCol
-        super(TransientMetric, self).__init__(col=[self.mjdCol, self.m5Col,self.filterCol],
-                                                    units='Fraction Detected',
-                                                    metricName=metricName,**kwargs)
-        self.peaks = {'u':uPeak,'g':gPeak,'r':rPeak,'i':iPeak,'z':zPeak,'y':yPeak}
+        super(TransientMetric, self).__init__(col=[self.mjdCol, self.m5Col, self.filterCol],
+                                              units='Fraction Detected',
+                                                    metricName=metricName, **kwargs)
+        self.peaks = {'u': uPeak, 'g': gPeak, 'r': rPeak, 'i': iPeak, 'z': zPeak, 'y': yPeak}
         self.transDuration = transDuration
         self.peakTime = peakTime
         self.riseSlope = riseSlope
@@ -58,7 +59,6 @@ class TransientMetric(BaseMetric):
         self.nPerLC = nPerLC
         self.nFilters = nFilters
         self.nPhaseCheck = nPhaseCheck
-
 
     def lightCurve(self, time, filters):
         """
@@ -122,7 +122,7 @@ class TransientMetric(BaseMetric):
                 # Note here I'm using np.searchsorted to basically do a 'group by'
                 # might be clearer to use scipy.ndimage.measurements.find_objects or pandas, but
                 # this numpy function is known for being efficient.
-                for le,ri in zip(left,right):
+                for le, ri in zip(left, right):
                     # Number of points where there are a detection
                     good = np.where(time[le:ri] < self.peakTime)
                     nd = np.sum(detected[le:ri][good])
@@ -130,7 +130,7 @@ class TransientMetric(BaseMetric):
                         detected[le:ri] += 1
 
             # Check if we need multiple points per light curve or multiple filters
-            if (self.nPerLC > 1) | (self.nFilters > 1) :
+            if (self.nPerLC > 1) | (self.nFilters > 1):
                 # make sure things are sorted by time
                 ord = np.argsort(dataSlice[self.mjdCol])
                 dataSlice = dataSlice[ord]
@@ -141,7 +141,7 @@ class TransientMetric(BaseMetric):
                 right = np.searchsorted(lcNumber, ulcNumber, side='right')
                 detectThresh += self.nFilters
 
-                for le,ri in zip(left,right):
+                for le, ri in zip(left, right):
                     points = np.where(detected[le:ri] > 0)
                     ufilters = np.unique(dataSlice[self.filterCol][le:ri][points])
                     phaseSections = np.floor(time[le:ri][points]/self.transDuration * self.nPerLC)

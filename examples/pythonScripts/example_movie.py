@@ -45,7 +45,8 @@
 # database will be propagated to getData automatically.
 
 
-import os, argparse
+import os
+import argparse
 import warnings
 import fnmatch
 import time
@@ -63,7 +64,7 @@ import lsst.sims.maf.utils as utils
 
 
 def dtime(time_prev):
-   return (time.time() - time_prev, time.time())
+    return (time.time() - time_prev, time.time())
 
 
 def setupMetrics(args, tstart, tnow, verbose=False):
@@ -77,7 +78,7 @@ def setupMetrics(args, tstart, tnow, verbose=False):
     #  is the same for all movie frames.
     t = time.time()
     metricList = []
-    #Simple metrics: coadded depth and number of visits
+    # Simple metrics: coadded depth and number of visits
     nvisitsMin = 0
     nvisitsMax = 300
     coaddMin = 25
@@ -88,19 +89,20 @@ def setupMetrics(args, tstart, tnow, verbose=False):
         coaddMin = 24.0
         coaddMax = 26.5
     metricList.append(metrics.Coaddm5Metric('fiveSigmaDepth', metricName='Coaddm5Metric',
-                                            plotDict={'colorMin':coaddMin, 'colorMax':coaddMax}))
+                                            plotDict={'colorMin': coaddMin, 'colorMax': coaddMax}))
     metricList.append(metrics.CountMetric('expMJD', metricName='N_Visits',
-                                            plotDict={'colorMin':nvisitsMin, 'colorMax':nvisitsMax,
-                                                        'cbarFormat': '%d', 'title':'Number of Visits '}))
+                                          plotDict={'colorMin': nvisitsMin, 'colorMax': nvisitsMax,
+                                                    'cbarFormat': '%d', 'title': 'Number of Visits '}))
     # Uniformity wants survey length in years.
     surveyLength = (tnow - tstart) / 365.0
     metricList.append(metrics.UniformityMetric('expMJD', surveyLength=surveyLength,
-                                               plotDict={'colorMin':0, 'colorMax':1, 'cbarFormat':'%.2f',
-                                                         'title':'Survey Uniformity'}))
+                                               plotDict={'colorMin': 0, 'colorMax': 1, 'cbarFormat': '%.2f',
+                                                         'title': 'Survey Uniformity'}))
     dt, t = dtime(t)
     if verbose:
-        print 'Set up metrics %f s' %(dt)
+        print 'Set up metrics %f s' % (dt)
     return metricList
+
 
 def setupStackers(args, verbose=False):
     """
@@ -113,6 +115,7 @@ def setupStackers(args, verbose=False):
         stackerList = None
     return stackerList
 
+
 def setupHealpixSlicer(args, verbose=False):
     """
     Instantiates and sets up the healpix slicer, using the subset of simdata (simdatasubset)
@@ -122,11 +125,13 @@ def setupHealpixSlicer(args, verbose=False):
     Returns the healpix slicer.
     """
     t = time.time()
-    hs = slicers.HealpixSlicer(nside=args.nside, spatialkey1=args.raCol, spatialkey2=args.decCol, plotFuncs='plotSkyMap')
+    hs = slicers.HealpixSlicer(nside=args.nside, spatialkey1=args.raCol,
+                               spatialkey2=args.decCol, plotFuncs='plotSkyMap')
     dt, t = dtime(t)
     if verbose:
-        print 'Set up healpix slicer %f s' %(dt)
+        print 'Set up healpix slicer %f s' % (dt)
     return hs
+
 
 def setupMovieSlicer(simdata, binsize = 365.0, cumulative=True, verbose=False):
     """
@@ -140,7 +145,7 @@ def setupMovieSlicer(simdata, binsize = 365.0, cumulative=True, verbose=False):
     ms.setupSlicer(simdata)
     dt, t = dtime(t)
     if verbose:
-        print 'Set up movie slicer in %f s' %(dt)
+        print 'Set up movie slicer in %f s' % (dt)
     return ms
 
 
@@ -152,20 +157,20 @@ def runSlices(opsimName, metadata, simdata, bins, args, verbose=False):
     # Set up movie slicer
     movieslicer = setupMovieSlicer(simdata, binsize = args.movieStepsize, cumulative=args.cumulative)
     start_date = movieslicer[0]['slicePoint']['binLeft']
-    sliceformat = '%s0%dd' %('%', int(np.log10(len(movieslicer)))+1)
+    sliceformat = '%s0%dd' % ('%', int(np.log10(len(movieslicer)))+1)
     # Run through the movie slicer slicePoints:
     for i, movieslice in enumerate(movieslicer):
         t = time.time()
-        slicenumber = sliceformat %(i)
+        slicenumber = sliceformat % (i)
         # Set up plot label.
-        timeInterval = '%.2f to %.2f' %(movieslice['slicePoint']['binLeft']-start_date,
-                                        movieslice['slicePoint']['binRight']-start_date)
+        timeInterval = '%.2f to %.2f' % (movieslice['slicePoint']['binLeft']-start_date,
+                                         movieslice['slicePoint']['binRight']-start_date)
         # Or add simple view of time to plot label.
         times_from_start = movieslice['slicePoint']['binRight'] - (int(bins[0]) + 0.16 - 0.5)
         # Opsim years are 365 days (not 365.25)
         years = int(times_from_start/365)
         days = times_from_start - years*365
-        plotlabel = 'Year %d Day %.4f' %(years, days)
+        plotlabel = 'Year %d Day %.4f' % (years, days)
         metricList = setupMetrics(args, start_date, movieslice['slicePoint']['binRight'])
         for metric in metricList:
             metric.plotDict['label'] = plotlabel + '\n' + args.sqlConstraint
@@ -178,7 +183,7 @@ def runSlices(opsimName, metadata, simdata, bins, args, verbose=False):
 
         # Set up sliceMetric to handle healpix slicer + metrics calculation + plotting
         sm = sliceMetrics.RunSliceMetric(outDir=args.outDir, useResultsDb=False,
-                                            figformat='png', dpi=72, thumbnail=False)
+                                         figformat='png', dpi=72, thumbnail=False)
         sm.setMetricsSlicerStackers(metricList, hs)
 
         # Calculate metric data values for simdatasubset (this also sets up indexing in the slicer)
@@ -189,7 +194,7 @@ def runSlices(opsimName, metadata, simdata, bins, args, verbose=False):
         # sm.writeAll(outfileSuffix=slicenumber)
         if verbose:
             dt, t = dtime(t)
-            print 'Ran and plotted slice %s of movieslicer in %f s' %(slicenumber, dt)
+            print 'Ran and plotted slice %s of movieslicer in %f s' % (slicenumber, dt)
 
 
 def stitchMovie(metricList, args):
@@ -211,14 +216,14 @@ def stitchMovie(metricList, args):
         # Identify filenames.
         plotfiles = fnmatch.filter(os.listdir(args.outDir), outfileroot + '*SkyMap.png')
         slicenum = plotfiles[0].replace(outfileroot, '').replace('_SkyMap.png', '').replace('_', '')
-        sliceformat = '%s0%dd' %('%', len(slicenum))
+        sliceformat = '%s0%dd' % ('%', len(slicenum))
         n_images = len(plotfiles)
         if n_images == 0:
-            raise Exception('No images found in %s with name like %s' %(args.outDir, outfileroot))
+            raise Exception('No images found in %s with name like %s' % (args.outDir, outfileroot))
         # Set up ffmpeg FPS/IPS parameters.
         # If a movieLength was specified... set args.ips/fps according to the number of images.
         if args.movieLength != 0.0:
-            #calculate images/second rate
+            # calculate images/second rate
             args.ips = n_images/float(args.movieLength)
             print "For a movie length of " + str(args.movieLength) + " IPS set to: ", args.ips
         if args.fps == 0.0:
@@ -230,10 +235,11 @@ def stitchMovie(metricList, args):
         if args.fps < args.ips:
             warnings.warn('Will create movie, but FPS < IPS, so some frames may be skipped.')
         if args.fps > 30.0:
-            warnings.warn('Will create movie, but FPS above 30 reduces performance and is undetectable to the human eye.')
+            warnings.warn(
+                'Will create movie, but FPS above 30 reduces performance and is undetectable to the human eye.')
         # Create the movie.
         movieslicer.plotMovie(outfileroot, sliceformat, plotType='SkyMap', figformat='png',
-                                outDir=args.outDir, ips=args.ips, fps=args.fps)
+                              outDir=args.outDir, ips=args.ips, fps=args.fps)
 
 
 if __name__ == '__main__':
@@ -247,18 +253,21 @@ if __name__ == '__main__':
                         help="Just make movie from existing metric plot files.")
     parser.add_argument("--sqlConstraint", type=str, default="filter='r'",
                         help="SQL constraint, such as filter='r' or propID=182")
-    parser.add_argument("--movieStepsize", type=float, default=365., help="Step size for movie slicer. Default 365 (1 year).")
+    parser.add_argument("--movieStepsize", type=float, default=365.,
+                        help="Step size for movie slicer. Default 365 (1 year).")
     parser.add_argument("--nside", type=int, default=128,
                         help="NSIDE parameter for healpix grid resolution. Default 128.")
     parser.add_argument("--raCol", type=str, default='fieldRA',
                         help="Name of RA column (fieldRA / nondithered is default).")
     parser.add_argument("--decCol", type=str, default='fieldDec',
                         help="Name of Dec column (fieldDec / nondithered is default).")
-    parser.add_argument("--binned", action = 'store_true', default=False, help="Create binned, non-cumulative movie.")
+    parser.add_argument("--binned", action = 'store_true', default=False,
+                        help="Create binned, non-cumulative movie.")
     parser.add_argument("--outDir", type=str, default='Output', help="Output directory.")
     parser.add_argument("--ips", type=float, default = 10.0,
                         help="The number of images per second in the movie. Will skip accordingly if fps is lower (set this first).")
-    parser.add_argument("--fps", type=float, default = 0.0, help="The frames per second of the movie (can be set from ips).")
+    parser.add_argument("--fps", type=float, default = 0.0,
+                        help="The frames per second of the movie (can be set from ips).")
     parser.add_argument("--movieLength", type=float, default=0.0,
                         help="Enter the desired length of the movie in seconds. "
                         "If you do so, there is no need to enter images per second, it will be calculated.")
@@ -275,13 +284,14 @@ if __name__ == '__main__':
     if not os.path.isdir(args.outDir):
         if args.skipComp:
             raise Exception('Skipping metric generation, expect to find plots in %s directory but it does not exist.'
-                            %(args.outDir))
+                            % (args.outDir))
         else:
             os.mkdir(args.outDir)
 
     # Check if user passed directory + filename as opsimDb.
     if len(os.path.dirname(args.opsimDb)) > 0:
-        raise Exception('OpsimDB should be just the filename of the sqlite file (not %s). Use --dbDir.' %(args.opsimDb))
+        raise Exception(
+            'OpsimDB should be just the filename of the sqlite file (not %s). Use --dbDir.' % (args.opsimDb))
 
     # Define metrics.
     metricList = setupMetrics(args, 0, 0)
@@ -292,11 +302,12 @@ if __name__ == '__main__':
 
     if not args.skipComp:
         # Get db connection info, and connect to database.
-        opsimName =  args.opsimDb.replace('_sqlite.db', '')
+        opsimName = args.opsimDb.replace('_sqlite.db', '')
         dbAddress = 'sqlite:///' + os.path.join(args.dbDir, args.opsimDb)
         opsDb = OpsimDatabase(dbAddress)
         sqlconstraint = args.sqlConstraint
-        metadata = sqlconstraint.replace('=','').replace('filter','').replace("'",'').replace('"','').replace('/','.')
+        metadata = sqlconstraint.replace('=', '').replace(
+            'filter', '').replace("'", '').replace('"', '').replace('/', '.')
         # Find the columns we need to query from the database.
         sm = sliceMetrics.RunSliceMetric(useResultsDb=False, outDir=args.outDir)
         sm.setMetricsSlicerStackers(metricList, subslicer, stackerList)

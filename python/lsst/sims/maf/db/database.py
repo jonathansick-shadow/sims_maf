@@ -1,9 +1,11 @@
-import os, warnings
+import os
+import warnings
 from .Table import Table
 import inspect
 from sqlalchemy import text
 
 __all__ = ['DatabaseRegistry', 'Database']
+
 
 class DatabaseRegistry(type):
     """
@@ -24,11 +26,13 @@ class DatabaseRegistry(type):
         databasename = modname + name
         if databasename in cls.registry:
             raise Exception('Redefining databases %s! (there are >1 database classes with the same name)'
-                            %(databasename))
+                            % (databasename))
         if databasename not in ['BaseDatabase']:
             cls.registry[databasename] = cls
+
     def getClass(cls, databasename):
         return cls.registry[databasename]
+
     def help(cls, doc=False):
         for databasename in sorted(cls.registry):
             if not doc:
@@ -55,9 +59,9 @@ class Database(object):
         dbTables = dictionary of names of tables in the code : [names of tables in the database, primary keys]
         """
         if longstrings:
-            typeOverRide = {'VARCHAR':(str, 1024), 'NVARCHAR':(str, 1024),
-                            'TEXT':(str, 1024), 'CLOB':(str, 1024),
-                            'STRING':(str, 1024)}
+            typeOverRide = {'VARCHAR': (str, 1024), 'NVARCHAR': (str, 1024),
+                            'TEXT': (str, 1024), 'CLOB': (str, 1024),
+                            'STRING': (str, 1024)}
         self.driver = driver
         self.host = host
         self.port = port
@@ -65,9 +69,9 @@ class Database(object):
         self.chunksize = chunksize
         # If it's a sqlite file, check that the filename exists.
         #  This gives a more understandable error message than trying to connect to non-existent file later.
-        if driver=='sqlite':
+        if driver == 'sqlite':
             if not os.path.isfile(database):
-                raise IOError('Sqlite database file "%s" not found.' %(database))
+                raise IOError('Sqlite database file "%s" not found.' % (database))
         # Add default values to provided input dictionaries (if not present in input dictionaries)
         if dbTables == None:
             self.dbTables = defaultdbTables
@@ -85,7 +89,7 @@ class Database(object):
             for k in self.dbTables:
                 if len(self.dbTables[k]) != 2:
                     raise Exception('Need table name plus primary key for each value in dbTables. Missing data for %s:%s'
-                                    %(k, self.dbTables[k]))
+                                    % (k, self.dbTables[k]))
                 if longstrings:
                     self.tables[k] = Table(self.dbTables[k][0], self.dbTables[k][1],
                                            database=self.database, driver=self.driver,

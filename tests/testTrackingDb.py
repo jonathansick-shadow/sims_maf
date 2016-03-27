@@ -1,12 +1,15 @@
 import matplotlib
 matplotlib.use("Agg")
-import os, warnings
+import os
+import warnings
 import unittest
 import lsst.utils.tests as utilsTests
 import lsst.sims.maf.db as db
 import shutil
 
+
 class TestTrackingDb(unittest.TestCase):
+
     def setUp(self):
         self.opsimRun = 'testopsim'
         self.opsimComment = 'opsimcomment'
@@ -33,7 +36,7 @@ class TestTrackingDb(unittest.TestCase):
                                     mafComment = self.mafComment, mafDir = self.mafDir,
                                     mafDate = self.mafDate, opsimDate = self.opsimDate)
         tdb = db.Database(database=self.trackingDb,
-                            dbTables={'runs':['runs', 'mafRunId']})
+                          dbTables={'runs': ['runs', 'mafRunId']})
         res = tdb.queryDatabase('runs', 'select * from runs')
         self.assertEqual(res['mafRunId'][0], trackId)
         # Try adding this run again. Should just return previous trackId without adding.
@@ -52,7 +55,7 @@ class TestTrackingDb(unittest.TestCase):
         """Test removing a run from the tracking database."""
         trackingdb = db.TrackingDb(database=self.trackingDb)
         tdb = db.Database(database=self.trackingDb,
-                          dbTables={'runs':['runs', 'mafRunId']})
+                          dbTables={'runs': ['runs', 'mafRunId']})
         # Add a run.
         trackId = trackingdb.addRun(opsimRun = self.opsimRun, opsimComment = self.opsimComment,
                                     mafComment = self.mafComment, mafDir = self.mafDir,
@@ -66,12 +69,14 @@ class TestTrackingDb(unittest.TestCase):
         # Test cannot remove run which does not exist.
         self.assertRaises(Exception, trackingdb.delRun, trackId)
 
+
 def suite():
     """Returns a suite containing all the test cases in this module."""
     utilsTests.init()
     suites = []
     suites += unittest.makeSuite(TestTrackingDb)
     return unittest.TestSuite(suites)
+
 
 def run(shouldExit=False):
     """Run the tests"""

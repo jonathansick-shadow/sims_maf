@@ -50,8 +50,8 @@ class OptimalM5Metric(BaseMetric):
         else:
             self.units = 'N visits behind'
         if magDiff:
-                self.units = 'mags'
-        super(OptimalM5Metric, self).__init__(col=[m5Col, optM5Col,filterCol],
+            self.units = 'mags'
+        super(OptimalM5Metric, self).__init__(col=[m5Col, optM5Col, filterCol],
                                               units=self.units, **kwargs)
         self.m5Col = m5Col
         self.optM5Col = optM5Col

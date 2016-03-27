@@ -14,10 +14,10 @@ class TestDustMap(unittest.TestCase):
         dustmap.load_ebvMapSouth()
 
         # Test the interpolation
-        ra = np.array([0.,0.,np.radians(30.)])
-        dec = np.array([0.,np.radians(30.),np.radians(-30.)])
+        ra = np.array([0., 0., np.radians(30.)])
+        dec = np.array([0., np.radians(30.), np.radians(-30.)])
 
-        ebvMap = dustmap.calculateEbv(equatorialCoordinates=np.array([ra,dec]),
+        ebvMap = dustmap.calculateEbv(equatorialCoordinates=np.array([ra, dec]),
                                       interp=False)
 
 if __name__ == "__main__":

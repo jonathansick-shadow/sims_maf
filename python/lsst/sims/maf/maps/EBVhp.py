@@ -8,7 +8,7 @@ from lsst.utils import getPackageDir
 __all__ = ['EBVhp']
 
 
-def EBVhp(nside, ra=None,dec=None, pixels=None, interp=False):
+def EBVhp(nside, ra=None, dec=None, pixels=None, interp=False):
     """
     Read in a healpix dust map and return values for given RA, Dec values
 
@@ -26,22 +26,22 @@ def EBVhp(nside, ra=None,dec=None, pixels=None, interp=False):
     if not hasattr(EBVhp, 'nside'):
         EBVhp.nside = nside
 
-    if (not hasattr(EBVhp, 'dustmap')) | (EBVhp.nside != nside) :
+    if (not hasattr(EBVhp, 'dustmap')) | (EBVhp.nside != nside):
         EBVhp.nside = nside
         ebvDataDir = getPackageDir('sims_maps')
         filename = 'DustMaps/dust_nside_%i.npz'%EBVhp.nside
-        EBVhp.dustMap = np.load(os.path.join(ebvDataDir,filename))['ebvMap']
+        EBVhp.dustMap = np.load(os.path.join(ebvDataDir, filename))['ebvMap']
 
     # If we are interpolating to arbitrary positions
     if interp:
-        result = hp.get_interp_val(EBVhp.dustMap, np.pi/2. - dec , ra )
+        result = hp.get_interp_val(EBVhp.dustMap, np.pi/2. - dec, ra)
     else:
         # If we know the pixel indices we want
         if pixels is not None:
             result = EBVhp.dustMap[pixels]
         # Look up
         else:
-            pixels = radec2pix(EBVhp.nside,ra,dec)
+            pixels = radec2pix(EBVhp.nside, ra, dec)
             result = EBVhp.dustMap[pixels]
 
     return result

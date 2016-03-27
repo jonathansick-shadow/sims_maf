@@ -10,6 +10,7 @@ with warnings.catch_warnings():
     warnings.simplefilter("ignore", UserWarning)
     from lsst.sims.catalogs.generation.db import CatalogDBObject, ChunkIterator
 
+
 class Table(CatalogDBObject):
     skipRegistration = True
     objid = 'sims_maf'
@@ -60,10 +61,10 @@ class Table(CatalogDBObject):
         else:
             idLabel = idColName
 
-        #SQL server requires an aggregate on all columns if a group by clause is used.
-        #Modify the columnMap to take care of this.  The default is MIN, but it shouldn't
-        #matter since the entries are almost identical (except for proposalId).
-        #Added double-quotes to handle column names that start with a number.
+        # SQL server requires an aggregate on all columns if a group by clause is used.
+        # Modify the columnMap to take care of this.  The default is MIN, but it shouldn't
+        # matter since the entries are almost identical (except for proposalId).
+        # Added double-quotes to handle column names that start with a number.
         if doGroupBy:
             query = self.connection.session.query(aggregate(self.table.c[idColName]).label(idLabel))
         else:
@@ -71,16 +72,16 @@ class Table(CatalogDBObject):
         for col, val in zip(colnames, vals):
             if val is idColName:
                 continue
-            #Check if this is a default column.
+            # Check if this is a default column.
             if val == col:
-                #If so, use the column in the table to take care of DB specific column
-                #naming conventions (capitalization, spaces, etc.)
+                # If so, use the column in the table to take care of DB specific column
+                # naming conventions (capitalization, spaces, etc.)
                 if doGroupBy:
                     query = query.add_column(aggregate(self.table.c[col]).label(col))
                 else:
                     query = query.add_column(self.table.c[col].label(col))
             else:
-                #If not, assume that the user has specified the column correctly
+                # If not, assume that the user has specified the column correctly
                 if doGroupBy:
                     query = query.add_column(aggregate(expression.literal_column(val)).label(col))
                 else:
@@ -94,12 +95,11 @@ class Table(CatalogDBObject):
             query = query.filter(text(constraint))
 
         if doGroupBy:
-            #Either group by a column that gives unique visits
+            # Either group by a column that gives unique visits
             query = query.group_by(self.table.c[groupByCol])
         if numLimit:
             query = query.limit(numLimit)
         return ChunkIterator(self, query, chunk_size)
-
 
     def query_columns_Array(self, colnames=None, chunk_size=1000000, constraint=None,
                             groupByCol=None, numLimit=None):
@@ -117,7 +117,7 @@ class Table(CatalogDBObject):
         # Merge results of chunked queries.
         if rescount > 0:
             simdata = np.hstack(chunkList)
-        else: # If there were no results from query, return an empty array
+        else:  # If there were no results from query, return an empty array
             dt = ['float']*len(colnames)
-            simdata = np.zeros(0, dtype=zip(colnames,dt))
+            simdata = np.zeros(0, dtype=zip(colnames, dt))
         return simdata

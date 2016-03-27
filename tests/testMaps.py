@@ -24,14 +24,16 @@ def makeDataValues(size=100, min=0., max=1., random=True):
                                  ('fieldDec', 'float'), ('fieldID', 'int')])
     return datavalues
 
+
 def makeFieldData():
-    names=['fieldID', 'fieldRA','fieldDec']
+    names = ['fieldID', 'fieldRA', 'fieldDec']
     types = [int, float, float]
-    fieldData = np.zeros(100, dtype=zip(names,types))
+    fieldData = np.zeros(100, dtype=zip(names, types))
     fieldData['fieldID'] = np.arange(100)
     fieldData['fieldRA'] = np.random.rand(100)
     fieldData['fieldDec'] = np.random.rand(100)
     return fieldData
+
 
 class TestMaps(unittest.TestCase):
 
@@ -75,7 +77,7 @@ class TestMaps(unittest.TestCase):
         if os.path.isfile(os.path.join(mapPath, 'StarMaps/starDensity_r_nside_64.npz')):
             data = makeDataValues()
             # check that it works if nside does not match map nside of 64
-            nsides = [32,64,128]
+            nsides = [32, 64, 128]
             for nside in nsides:
                 starmap = maps.StellarDensityMap()
                 slicer1 = slicers.HealpixSlicer(nside=nside)

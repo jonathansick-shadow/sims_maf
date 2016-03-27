@@ -11,6 +11,7 @@ class NeoDistancePlotter(BasePlotter):
     Special plotter to calculate and plot the maximum distance an H=22 NEO could be observable to,
     in any particular particular opsim observation.
     """
+
     def __init__(self, step=.01, eclipMax=10., eclipMin=-10.):
         """
         eclipMin/Max:  only plot observations within X degrees of the ecliptic plane

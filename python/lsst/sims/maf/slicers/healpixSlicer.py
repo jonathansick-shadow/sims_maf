@@ -13,9 +13,11 @@ from .baseSpatialSlicer import BaseSpatialSlicer
 
 __all__ = ['HealpixSlicer']
 
+
 class HealpixSlicer(BaseSpatialSlicer):
     """Healpix spatial slicer."""
-    def __init__(self, nside=128, lonCol ='fieldRA' ,
+
+    def __init__(self, nside=128, lonCol ='fieldRA',
                  latCol='fieldDec', verbose=True,
                  useCache=True, radius=1.75, leafsize=100,
                  useCamera=False, chipNames='all', rotSkyPosColName='rotSkyPos', mjdColName='expMJD'):
@@ -35,17 +37,17 @@ class HealpixSlicer(BaseSpatialSlicer):
         self.nside = int(nside)
         self.pixArea = hp.nside2pixarea(self.nside)
         self.nslice = hp.nside2npix(self.nside)
-        self.spatialExtent = [0,self.nslice-1]
+        self.spatialExtent = [0, self.nslice-1]
         self.shape = self.nslice
         if self.verbose:
             print 'Healpix slicer using NSIDE=%d, '%(self.nside) + \
-            'approximate resolution %f arcminutes'%(hp.nside2resol(self.nside,arcmin=True))
+                'approximate resolution %f arcminutes'%(hp.nside2resol(self.nside, arcmin=True))
         # Set variables so slicer can be re-constructed
-        self.slicer_init = {'nside':nside, 'lonCol':lonCol, 'latCol':latCol,
-                            'radius':radius}
+        self.slicer_init = {'nside': nside, 'lonCol': lonCol, 'latCol': latCol,
+                            'radius': radius}
         if useCache:
             # useCache set the size of the cache for the memoize function in sliceMetric.
-            binRes = hp.nside2resol(nside) # Pixel size in radians
+            binRes = hp.nside2resol(nside)  # Pixel size in radians
             # Set the cache size to be ~2x the circumference
             self.cacheSize = int(np.round(4.*np.pi/binRes))
         # Set up slicePoint metadata.

@@ -2,7 +2,9 @@ from .baseStacker import BaseStacker
 
 __all__ = ['ColInfo']
 
+
 class ColInfo(object):
+
     def __init__(self):
         """Set up the unit and source dictionaries.
         """
@@ -10,7 +12,7 @@ class ColInfo(object):
         self.defaultUnit = ''
         self.unitDict = {'fieldID': '#',
                          'filter': 'filter',
-                         'seqnNum' : '#',
+                         'seqnNum': '#',
                          'expMJD': 'MJD',
                          'expTime': 's',
                          'slewTime': 's',
@@ -30,9 +32,9 @@ class ColInfo(object):
                          'dist2Moon': 'rad',
                          'filtSkyBrightness': 'mag/sq arcsec',
                          'VskyBright': 'mag/sq arcsec',
-                         'fiveSigmaDepth':'mag',
-                         'ditheredRA':'rad',
-                         'ditheredDec':'rad',
+                         'fiveSigmaDepth': 'mag',
+                         'ditheredRA': 'rad',
+                         'ditheredDec': 'rad',
                          'solarElong': 'degrees'}
         # Go through the available stackers and add any units, and identify their
         #   source methods.

@@ -2,6 +2,7 @@ import inspect
 
 __all__ = ['MapsRegistry', 'BaseMap']
 
+
 class MapsRegistry(type):
     """
     Meta class for Maps, to build a registry of maps classes.
@@ -20,7 +21,7 @@ class MapsRegistry(type):
                 modname = modname + '.'
         mapsname = modname + name
         if mapsname in cls.registry:
-            raise Exception('Redefining maps %s! (there are >1 maps with the same name)' %(mapsname))
+            raise Exception('Redefining maps %s! (there are >1 maps with the same name)' % (mapsname))
         if mapsname != 'BaseMaps':
             cls.registry[mapsname] = cls
 
@@ -37,14 +38,15 @@ class MapsRegistry(type):
                 maps = cls.registry[mapsname]()
                 print ' added to SlicePoint: ', ','.join(maps.keynames)
 
+
 class BaseMap(object):
     """ """
     __metaclass__ = MapsRegistry
 
-    def __init__(self,**kwargs):
+    def __init__(self, **kwargs):
         self.keyname = 'newkey'
 
-    def run(self,slicePoints):
+    def run(self, slicePoints):
         """
         Given slicePoints (dict containing metadata about each slicePoint, including ra/dec),
          adds additional metadata at each slicepoint and returns updated dict.

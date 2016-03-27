@@ -5,7 +5,9 @@ from .plotHandler import BasePlotter
 
 __all__ = ['HourglassPlot']
 
+
 class HourglassPlot(BasePlotter):
+
     def __init__(self):
         self.plotType = 'Hourglass'
         self.objectPlotter = True

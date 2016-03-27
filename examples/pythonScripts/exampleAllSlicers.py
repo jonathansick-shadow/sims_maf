@@ -47,15 +47,15 @@ bundle = metricBundles.MetricBundle(metric, slicer, sqlWhere)
 bundleList.append(bundle)
 
 # UserPointsSlicer
-ra = np.arange(0,101,1)/100.*np.pi
-dec = np.arange(0,101,1)/100.*(-np.pi)
-slicer = slicers.UserPointsSlicer(ra=ra,dec=dec)
+ra = np.arange(0, 101, 1)/100.*np.pi
+dec = np.arange(0, 101, 1)/100.*(-np.pi)
+slicer = slicers.UserPointsSlicer(ra=ra, dec=dec)
 metric = metrics.MeanMetric(col='airmass', metricName='meanAirmass_user')
 bundle = metricBundles.MetricBundle(metric, slicer, sqlWhere)
 bundleList.append(bundle)
 
 # UserPointsSlicer, turn on the camera focal plane geometry
-slicer = slicers.UserPointsSlicer(ra=ra,dec=dec, useCamera=True)
+slicer = slicers.UserPointsSlicer(ra=ra, dec=dec, useCamera=True)
 metric = metrics.MeanMetric(col='airmass', metricName='meanAirmass_user_w_camera')
 bundle = metricBundles.MetricBundle(metric, slicer, sqlWhere)
 bundleList.append(bundle)
@@ -65,7 +65,7 @@ bundleList.append(bundle)
 bins = np.arange(0.5, 3.0, 0.1)
 slicer = slicers.HealpixSlicer(nside=16)
 metric = metrics.TgapsMetric(bins=bins)
-plotDict = {'bins':bins}
+plotDict = {'bins': bins}
 plotFuncs = [plots.SummaryHistogram()]
 bundle = metricBundles.MetricBundle(metric, slicer, sqlWhere, plotDict=plotDict, plotFuncs=plotFuncs)
 bundleList.append(bundle)
@@ -87,7 +87,7 @@ bgroup.writeAll()
 
 
 # Make a 6-panel seeing plot
-filters = ['u','g','r','i','z','y']
+filters = ['u', 'g', 'r', 'i', 'z', 'y']
 slicer = slicers.HealpixSlicer(nside=64)
 metric = metrics.MeanMetric(col='finSeeing')
 for f in filters:
@@ -99,8 +99,6 @@ for f in filters:
     bgroup.writeAll()
 
 
-
-
 # healpixSDSSSlicer
 # need to run setup pymssql to get this part to run. Do we want to add that to our dependencies?
 runSDSS = False
@@ -110,7 +108,7 @@ if runSDSS:
     slicer = slicers.HealpixSDSSSlicer(nside=64, lonCol='RA1', latCol='Dec1')
     metric = metrics.MeanMetric(col='psfWidth')
     bundle = metricBundles.MetricBundle(metric, slicer, sqlWhere)
-    bgroup = metricBundles.MetricBundleGroup({0:bundle}, sdssDB, outDir=outDir, resultsDb=resultsDb)
+    bgroup = metricBundles.MetricBundleGroup({0: bundle}, sdssDB, outDir=outDir, resultsDb=resultsDb)
     bgroup.runAll()
     bgroup.plotAll()
     bgroup.writeAll()

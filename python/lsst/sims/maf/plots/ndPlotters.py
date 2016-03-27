@@ -8,12 +8,14 @@ __all__ = ['TwoDSubsetData', 'OneDSubsetData']
 
 perceptual_rainbow = makePRCmap()
 
+
 class TwoDSubsetData(BasePlotter):
     """
     Plot 2 axes from the slicer.sliceColList, identified by
     plotDict['xaxis']/['yaxis'], given the metricValues at all
     slicepoints [sums over non-visible axes].
     """
+
     def __init__(self):
         self.plotType = '2DBinnedData'
         self.objectPlotter = False
@@ -93,6 +95,7 @@ class OneDSubsetData(BasePlotter):
     Plot a single axes from the sliceColList, identified by plotDict['axis'],
     given the metricValues at all slicepoints [sums over non-visible axes].
     """
+
     def __init__(self):
         self.plotType = '1DBinnedData'
         self.objectPlotter = False

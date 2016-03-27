@@ -3,6 +3,7 @@ from .baseMetric import BaseMetric
 
 __all__ = ['TgapsMetric']
 
+
 class TgapsMetric(BaseMetric):
     """Histogram up all the time gaps """
 
@@ -32,8 +33,8 @@ class TgapsMetric(BaseMetric):
         times = np.sort(dataSlice[self.timesCol])
         if self.allGaps:
             allDiffs = []
-            for i in np.arange(1,times.size,1):
-                allDiffs.append( (times-np.roll(times,i))[i:] )
+            for i in np.arange(1, times.size, 1):
+                allDiffs.append((times-np.roll(times, i))[i:])
             dts = np.concatenate(allDiffs)
         else:
             dts = np.diff(times)

@@ -26,6 +26,7 @@ class HealpixSkyMap(BasePlotter):
     """
     Generate a sky map of healpix metric values using healpy's mollweide view.
     """
+
     def __init__(self):
         # Set the plotType
         self.plotType = 'SkyMap'
@@ -139,6 +140,7 @@ class HealpixSkyMap(BasePlotter):
 
 
 class HealpixPowerSpectrum(BasePlotter):
+
     def __init__(self):
         self.plotType = 'PowerSpectrum'
         self.objectPlotter = False
@@ -189,6 +191,7 @@ class HealpixPowerSpectrum(BasePlotter):
 
 
 class HealpixHistogram(BasePlotter):
+
     def __init__(self):
         self.plotType = 'Histogram'
         self.objectPlotter = False
@@ -216,6 +219,7 @@ class HealpixHistogram(BasePlotter):
 
 
 class OpsimHistogram(BasePlotter):
+
     def __init__(self):
         self.plotType = 'Histogram'
         self.objectPlotter = False
@@ -240,6 +244,7 @@ class OpsimHistogram(BasePlotter):
 
 
 class BaseHistogram(BasePlotter):
+
     def __init__(self):
         self.plotType = 'Histogram'
         self.objectPlotter = False
@@ -394,6 +399,7 @@ class BaseHistogram(BasePlotter):
 
 
 class BaseSkyMap(BasePlotter):
+
     def __init__(self):
         self.plotType = 'SkyMap'
         self.objectPlotter = False  # unless 'metricIsColor' is true..
@@ -584,6 +590,7 @@ class BaseSkyMap(BasePlotter):
 
 
 class HealpixSDSSSkyMap(BasePlotter):
+
     def __init__(self):
         self.plotType = 'SkyMap'
         self.objectPlotter = False
@@ -596,7 +603,6 @@ class HealpixSDSSSkyMap(BasePlotter):
                                 'labelsize': None, 'fontsize': None}
 
     def __call__(self, metricValueIn, slicer, userPlotDict, fignum=None, ):
-
         """
         Plot the sky map of metricValue using healpy cartview plots in thin strips.
         raMin: Minimum RA to plot (deg)

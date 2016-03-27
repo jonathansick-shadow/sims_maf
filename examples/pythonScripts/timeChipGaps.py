@@ -14,32 +14,31 @@ def runChips(useCamera=False):
     import matplotlib.pylab as plt
     import healpy as hp
 
-
     print 'Camera setting = ', useCamera
 
     database = 'enigma_1189_sqlite.db'
-    sqlWhere = 'filter = "r" and night < 800 and fieldRA < %f and fieldDec > %f and fieldDec < 0' % (np.radians(15), np.radians(-15))
+    sqlWhere = 'filter = "r" and night < 800 and fieldRA < %f and fieldDec > %f and fieldDec < 0' % (
+        np.radians(15), np.radians(-15))
     opsdb = db.OpsimDatabase(database)
     outDir = 'Camera'
     resultsDb = db.ResultsDb(outDir=outDir)
 
-    nside=512
+    nside = 512
     tag = 'F'
     if useCamera:
-        tag='T'
+        tag = 'T'
     metric = metrics.CountMetric('expMJD', metricName='chipgap_%s'%tag)
 
     slicer = slicers.HealpixSlicer(nside=nside, useCamera=useCamera)
-    bundle1 = metricBundles.MetricBundle(metric,slicer,sqlWhere)
+    bundle1 = metricBundles.MetricBundle(metric, slicer, sqlWhere)
 
-    bg = metricBundles.MetricBundleGroup({0:bundle1},opsdb, outDir=outDir, resultsDb=resultsDb)
+    bg = metricBundles.MetricBundleGroup({0: bundle1}, opsdb, outDir=outDir, resultsDb=resultsDb)
     bg.runAll()
-    hp.gnomview(bundle1.metricValues, xsize=800,ysize=800, rot=(7,-7,0), unit='Count', min=1)
+    hp.gnomview(bundle1.metricValues, xsize=800, ysize=800, rot=(7, -7, 0), unit='Count', min=1)
     plt.savefig(outDir+'/fig'+tag+'.png')
 
 
 if __name__ == "__main__":
-
 
     t1 = timeit.timeit("runChips()", setup="from __main__ import runChips", number=1)
     t2 = timeit.timeit("runChips(useCamera=True)", setup="from __main__ import runChips", number=1)
@@ -50,9 +49,9 @@ if __name__ == "__main__":
 
 # Results:
 #--------
-#time without chips = 80.819745
-#time with chips = 92.150030
+# time without chips = 80.819745
+# time with chips = 92.150030
 #--------
 # night < 800
-#time without chips = 82.370980
-#time with chips = 1035.295138
+# time without chips = 82.370980
+# time with chips = 1035.295138

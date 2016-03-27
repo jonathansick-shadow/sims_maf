@@ -8,10 +8,12 @@ from .plotHandler import BasePlotter
 
 __all__ = ['FOPlot', 'SummaryHistogram']
 
+
 class FOPlot(BasePlotter):
     """
     Special plotter to generate and label fO plots.
     """
+
     def __init__(self):
         self.plotType = 'FO'
         self.objectPlotter = False

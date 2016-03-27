@@ -5,13 +5,14 @@ import numpy as np
 
 import lsst.sims.maf.utils as utils
 
+
 class TestUtils(unittest.TestCase):
 
     def testStellarMags(self):
         """
         Test that the stellar magnitudes are created for accepted types.
         """
-        stellarTypes = ['O','B','A','F','G','K','M']
+        stellarTypes = ['O', 'B', 'A', 'F', 'G', 'K', 'M']
         for st in stellarTypes:
             mags = utils.stellarMags(st)
             mags2 = utils.stellarMags(st, rmag=20.)
@@ -24,7 +25,7 @@ class TestUtils(unittest.TestCase):
         Test that the createSQLWhere method handles expected cases.
         """
         # propTags is a dictionary of lists returned by OpsimDatabase
-        propTags = {'WFD':[1, 2, 3], 'DD':[4], 'Rolling':[2]}
+        propTags = {'WFD': [1, 2, 3], 'DD': [4], 'Rolling': [2]}
         # If tag is in dictionary with one value, returned sql where clause
         #  is simply 'propId = 4'
         tag = 'DD'
@@ -35,7 +36,7 @@ class TestUtils(unittest.TestCase):
         sqlWhere = utils.createSQLWhere(tag, propTags)
         self.assertEqual(sqlWhere.split()[0], '(propID')
         for id in propTags['WFD']:
-            self.assertTrue('%s' %(id) in sqlWhere)
+            self.assertTrue('%s' % (id) in sqlWhere)
         # And the same id can be in multiple proposals.
         tag = 'Rolling'
         sqlWhere = utils.createSQLWhere(tag, propTags)

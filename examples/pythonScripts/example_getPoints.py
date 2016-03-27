@@ -5,7 +5,7 @@ import lsst.sims.maf.db as db
 dbAddress = 'sqlite:///ops1_1140_sqlite.db'
 oo = db.OpsimDatabase(dbAddress)
 colnames = ['expMJD', 'fieldRA', 'fieldDec']
-sqlconstraint ='filter="r"'
+sqlconstraint = 'filter="r"'
 # Get opsim simulation data
 simdata = oo.fetchMetricData(colnames, sqlconstraint)
 # Init the slicer, set 2 points

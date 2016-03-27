@@ -17,6 +17,7 @@ import lsst.sims.maf.metricBundles as metricBundles
 import lsst.sims.maf.plots as plots
 import lsst.sims.maf.utils as utils
 
+
 def makeBundleList(dbFile, runName=None, benchmark='design', seeingCol='FWHMeff'):
 
     # The 'seeing' argument is a bit of a hack to accomodate the switchover
@@ -77,7 +78,7 @@ def makeBundleList(dbFile, runName=None, benchmark='design', seeingCol='FWHMeff'
         benchmarkDDVals = {}
         benchmarkDDVals = utils.scaleBenchmarks(runLength, benchmark='design')
         benchmarkDDVals['nvisits'] = opsimdb.fetchRequestedNvisits(propId=DDpropid)
-        #benchmarkDDVals['coaddedDepth'] = utils.calcCoaddedDepth(benchmarkDDVals['nvisits'],
+        # benchmarkDDVals['coaddedDepth'] = utils.calcCoaddedDepth(benchmarkDDVals['nvisits'],
         #                                                         benchmarkDDVals['singleVisitDepth'])
         benchmarkDDVals['coaddedDepth'] = {'u': 28.5, 'g': 28.5, 'r': 28.5, 'i': 28.5, 'z': 28.0, 'y': 27.0}
 

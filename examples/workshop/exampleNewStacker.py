@@ -2,10 +2,12 @@ import numpy as np
 from lsst.sims.maf.stackers import BaseStacker
 from lsst.sims.maf.stackers import wrapRA, wrapDec
 
+
 class SingleFieldDitherStacker(BaseStacker):
     """
     Repurpose LSST to only look at one field - 'dither' all pointings to single RA/Dec value.
     """
+
     def __init__(self, fixedRA=0.0, fixedDec=0.0):
         """
         fixedRA and fixedDec are the RA/Dec values for the new columns (in radians).
@@ -35,6 +37,7 @@ class YearlyDitherStacker(BaseStacker):
     """
     Add a dither of half the FOV depending on the year of the survey.
     """
+
     def __init__(self, expMJDCol='expMJD', raCol='fieldRA', decCol='fieldDec'):
         # Names of columns we want to add.
         self.colsAdded = ['yearlyDitherRA', 'yearlyDitherDec']
@@ -48,18 +51,18 @@ class YearlyDitherStacker(BaseStacker):
         self.expMJDCol = expMJDCol
         self.raCol = raCol
         self.decCol = decCol
-                
+
     def run(self, simData):
         # Add new columns to simData.
         simData = self._addStackers(simData)
         # What 'year' is each visit in?
         year = np.floor((simData[self.expMJDCol] - simData[self.expMJDCol][0]) / 365.25)
-        # Define dither based on year. 
+        # Define dither based on year.
         ditherRA = np.zeros(len(simData[self.raCol]))
         ditherDec = np.zeros(len(simData[self.decCol]))
         # In y1, y3, y5, y6, y8 & y10 ra dither = 0.
         # In y2 & y7, ra dither = +ditherOffset
-        # In y4 & y9, ra dither = -ditherOffset    
+        # In y4 & y9, ra dither = -ditherOffset
         condition = ((year == 2) | (year == 7))
         ditherRA[condition] = self.ditherOffset
         condition = ((year == 4) | (year == 9))
@@ -74,5 +77,5 @@ class YearlyDitherStacker(BaseStacker):
         ditherDec[condition] = self.ditherOffset
         simData['yearlyDitherDec'] = wrapDec(simData[self.decCol] + ditherDec)
         return simData
-                                            
+
 

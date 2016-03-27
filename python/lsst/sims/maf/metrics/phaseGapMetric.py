@@ -3,10 +3,12 @@ from .baseMetric import BaseMetric
 
 __all__ = ['PhaseGapMetric']
 
+
 class PhaseGapMetric(BaseMetric):
     """
     Measure the maximum gap in phase coverage for observations of periodic variables.
     """
+
     def __init__(self, col='expMJD', nPeriods=5, periodMin=3., periodMax=35., nVisitsMin=3,
                  metricName='Phase Gap', **kwargs):
         """
@@ -52,7 +54,7 @@ class PhaseGapMetric(BaseMetric):
             gaps = np.concatenate([gaps, start_to_end])
             maxGap[i] = np.max(gaps)
 
-        return {'periods':periods, 'maxGaps':maxGap}
+        return {'periods': periods, 'maxGaps': maxGap}
 
     def reduceMeanGap(self, metricVal):
         """

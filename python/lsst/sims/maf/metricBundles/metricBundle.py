@@ -41,6 +41,7 @@ class MetricBundle(object):
     as well as additional metadata such as the opsim run name, and relevant stackers and maps
     to apply when calculating the metric values.
     """
+
     def __init__(self, metric, slicer, sqlconstraint,
                  stackerList=None, runName='opsim', metadata=None,
                  plotDict=None, displayDict=None,

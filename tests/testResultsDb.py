@@ -1,13 +1,16 @@
 import matplotlib
 matplotlib.use("Agg")
-import os, warnings
+import os
+import warnings
 import unittest
 import lsst.utils.tests as utilsTests
 import numpy as np
 import lsst.sims.maf.db as db
 import shutil
 
+
 class TestResultsDb(unittest.TestCase):
+
     def setUp(self):
         self.outDir = 'Out'
         self.metricName = 'Count ExpMJD'
@@ -25,9 +28,9 @@ class TestResultsDb(unittest.TestCase):
         self.summaryStatName3 = 'TableFrac'
         self.summaryStatValue3 = np.empty(10, dtype=[('name', '|S12'), ('value', float)])
         for i in range(10):
-            self.summaryStatValue3['name'] = 'test%d' %(i)
+            self.summaryStatValue3['name'] = 'test%d' % (i)
             self.summaryStatValue3['value'] = i
-        self.displayDict = {'group':'seeing', 'subgroup':'all', 'order':1, 'caption':'lalalalal'}
+        self.displayDict = {'group': 'seeing', 'subgroup': 'all', 'order': 1, 'caption': 'lalalalal'}
 
     def testDbCreation(self):
         # Test default sqlite file created (even if outDir doesn't exist)
@@ -47,10 +50,10 @@ class TestResultsDb(unittest.TestCase):
         resultsDb = db.ResultsDb(outDir=self.outDir)
         # Add metric.
         metricId = resultsDb.updateMetric(self.metricName, self.slicerName, self.runName, self.sqlconstraint,
-                                        self.metadata, self.metricDataFile)
+                                          self.metadata, self.metricDataFile)
         # Try to re-add metric (should get back same metric id as previous, with no add).
         metricId2 = resultsDb.updateMetric(self.metricName, self.slicerName, self.runName, self.sqlconstraint,
-                                        self.metadata, self.metricDataFile)
+                                           self.metadata, self.metricDataFile)
         self.assertEqual(metricId, metricId2)
         run1 = resultsDb.session.query(db.MetricRow).filter_by(metricId = metricId).all()
         self.assertEqual(len(run1), 1)
@@ -80,6 +83,7 @@ class TestResultsDb(unittest.TestCase):
 
 
 class TestUseResultsDb(unittest.TestCase):
+
     def setUp(self):
         self.outDir = 'Out'
         self.metricName = 'Count ExpMJD'
@@ -96,7 +100,7 @@ class TestUseResultsDb(unittest.TestCase):
         self.summaryStatValue2 = 18
         self.resultsDb = db.ResultsDb(outDir=self.outDir)
         self.metricId = self.resultsDb.updateMetric(self.metricName, self.slicerName, self.runName, self.sqlconstraint,
-                                            self.metadata, self.metricDataFile)
+                                                    self.metadata, self.metricDataFile)
         self.resultsDb.updatePlot(self.metricId, self.plotType, self.plotName)
         self.resultsDb.updateSummaryStat(self.metricId, self.summaryStatName1, self.summaryStatValue1)
         self.resultsDb.updateSummaryStat(self.metricId, self.summaryStatName2, self.summaryStatValue2)
@@ -113,6 +117,7 @@ class TestUseResultsDb(unittest.TestCase):
         if os.path.isdir(self.outDir):
             shutil.rmtree(self.outDir)
 
+
 def suite():
     """Returns a suite containing all the test cases in this module."""
     utilsTests.init()
@@ -120,6 +125,7 @@ def suite():
     suites += unittest.makeSuite(TestResultsDb)
     suites += unittest.makeSuite(TestUseResultsDb)
     return unittest.TestSuite(suites)
+
 
 def run(shouldExit=False):
     """Run the tests"""

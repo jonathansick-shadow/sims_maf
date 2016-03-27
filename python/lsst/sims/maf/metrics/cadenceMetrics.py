@@ -5,10 +5,12 @@ __all__ = ['SupernovaMetric', 'TemplateExistsMetric', 'UniformityMetric',
            'RapidRevisitMetric', 'NRevisitsMetric', 'IntraNightGapsMetric',
            'InterNightGapsMetric', 'AveGapMetric']
 
+
 class SupernovaMetric(BaseMetric):
     """
     Measure how many time series meet a given time and filter distribution requirement.
     """
+
     def __init__(self, metricName='SupernovaMetric',
                  mjdCol='expMJD', filterCol='filter', m5Col='fiveSigmaDepth',
                  units='', redshift=0.,
@@ -64,35 +66,35 @@ class SupernovaMetric(BaseMetric):
         self.snrCut = snrCut
         self.resolution = resolution
         self.uniqueBlocks = uniqueBlocks
-        self.filterNames = np.array(['u','g','r','i','z','y'])
+        self.filterNames = np.array(['u', 'g', 'r', 'i', 'z', 'y'])
         # Set rough values for the filter effective wavelengths.
-        self.filterWave = np.array([375.,476.,621.,754.,870.,980.])/(1.+self.redshift)
-        self.filterNames = self.filterNames[np.where( (self.filterWave > 300.) & (self.filterWave < 900.))[0]]
+        self.filterWave = np.array([375., 476., 621., 754., 870., 980.])/(1.+self.redshift)
+        self.filterNames = self.filterNames[np.where((self.filterWave > 300.) & (self.filterWave < 900.))[0]]
         self.singleDepthLimit = singleDepthLimit
 
         # It would make sense to put a dict of interpolation functions here keyed on filter that take time
-        #and returns the magnitude of a SN.  So, take a SN SED, redshift it, calc it's mag in each filter.
-        #repeat for multiple time steps.
+        # and returns the magnitude of a SN.  So, take a SN SED, redshift it, calc it's mag in each filter.
+        # repeat for multiple time steps.
 
     def run(self, dataSlice, slicePoint=None):
         # Cut down to only include filters in correct wave range.
-        goodFilters = np.in1d(dataSlice['filter'],self.filterNames)
+        goodFilters = np.in1d(dataSlice['filter'], self.filterNames)
         dataSlice = dataSlice[goodFilters]
         if dataSlice.size == 0:
-            return (self.badval, self.badval,self.badval)
+            return (self.badval, self.badval, self.badval)
         dataSlice.sort(order=self.mjdCol)
         time = dataSlice[self.mjdCol]-dataSlice[self.mjdCol].min()
         # Now days in SN rest frame
-        time = time/(1.+ self.redshift)
+        time = time/(1. + self.redshift)
         # Creat time steps to evaluate at
-        finetime = np.arange(0.,np.ceil(np.max(time)),self.resolution)
-        #index for each time point
+        finetime = np.arange(0., np.ceil(np.max(time)), self.resolution)
+        # index for each time point
         ind = np.arange(finetime.size)
-        #index for each time point + Tmax - Tmin
-        right = np.searchsorted( time, finetime+self.Tmax-self.Tmin, side='right')
+        # index for each time point + Tmax - Tmin
+        right = np.searchsorted(time, finetime+self.Tmax-self.Tmin, side='right')
         left = np.searchsorted(time, finetime, side='left')
         # Demand enough visits in window
-        good = np.where( (right - left) > self.Nbetween)[0]
+        good = np.where((right - left) > self.Nbetween)[0]
         ind = ind[good]
         right = right[good]
         left = left[good]
@@ -102,7 +104,7 @@ class SupernovaMetric(BaseMetric):
         # Record the total number of observations in a sequence.
         Nobs = []
         right_side = -1
-        for i,index in enumerate(ind):
+        for i, index in enumerate(ind):
             if i <= right_side:
                 pass
             else:
@@ -114,18 +116,18 @@ class SupernovaMetric(BaseMetric):
                     if np.size(np.where(t > self.Tmore)[0]) > self.Nmore:
                         if np.size(t) > self.Nbetween:
                             ufilters = np.unique(visits[self.filterCol])
-                            if np.size(ufilters) >= self.Nfilt: #XXX need to add snr cut here
+                            if np.size(ufilters) >= self.Nfilt:  # XXX need to add snr cut here
                                 filtersBrightEnough = 0
                                 nearPeak = np.where((t > self.Tless) & (t < self.Tmore))
                                 ufilters = np.unique(visits[self.filterCol][nearPeak])
                                 for f in ufilters:
                                     if np.max(visits[self.m5Col][nearPeak]
                                               [np.where(visits[self.filterCol][nearPeak] == f)]) \
-                                              > self.singleDepthLimit:
+                                            > self.singleDepthLimit:
                                         filtersBrightEnough += 1
                                 if filtersBrightEnough >= self.Nfilt:
                                     if np.size(nearPeak) >= 2:
-                                        gaps = t[nearPeak][1:]-np.roll(t[nearPeak],1)[1:]
+                                        gaps = t[nearPeak][1:]-np.roll(t[nearPeak], 1)[1:]
                                     else:
                                         gaps = self.peakGap+1e6
                                     if np.max(gaps) < self.peakGap:
@@ -135,29 +137,33 @@ class SupernovaMetric(BaseMetric):
                                         maxGap.append(np.max(gaps))
                                         Nobs.append(np.size(t))
         maxGap = np.array(maxGap)
-        Nobs=np.array(Nobs)
-        return {'result':result, 'maxGap':maxGap, 'Nobs':Nobs}
+        Nobs = np.array(Nobs)
+        return {'result': result, 'maxGap': maxGap, 'Nobs': Nobs}
 
-    def reduceMedianMaxGap(self,data):
+    def reduceMedianMaxGap(self, data):
         """The median maximum gap near the peak of the light curve """
         result = np.median(data['maxGap'])
         if np.isnan(result):
             result = self.badval
         return result
-    def reduceNsequences(self,data):
+
+    def reduceNsequences(self, data):
         """The number of sequences that met the requirements """
         return data['result']
-    def reduceMedianNobs(self,data):
+
+    def reduceMedianNobs(self, data):
         """Median number of observations covering the entire light curve """
         result = np.median(data['Nobs'])
         if np.isnan(result):
             result = self.badval
         return result
 
+
 class TemplateExistsMetric(BaseMetric):
     """
     Calculate the fraction of images with a previous template image of desired quality.
     """
+
     def __init__(self, seeingCol = 'FWHMgeom', expMJDCol='expMJD',
                  metricName='TemplateExistsMetric', **kwargs):
         """
@@ -165,7 +171,8 @@ class TemplateExistsMetric(BaseMetric):
         expMJDCol = column with exposure MJD.
         """
         cols = [seeingCol, expMJDCol]
-        super(TemplateExistsMetric, self).__init__(col=cols, metricName=metricName, units='fraction', **kwargs)
+        super(TemplateExistsMetric, self).__init__(
+            col=cols, metricName=metricName, units='fraction', **kwargs)
         self.seeingCol = seeingCol
         self.expMJDCol = expMJDCol
 
@@ -175,25 +182,27 @@ class TemplateExistsMetric(BaseMetric):
         # Find the minimum seeing up to a given time
         seeing_mins = np.minimum.accumulate(dataSlice[self.seeingCol])
         # Find the difference between the seeing and the minimum seeing at the previous visit
-        seeing_diff = dataSlice[self.seeingCol] - np.roll(seeing_mins,1)
+        seeing_diff = dataSlice[self.seeingCol] - np.roll(seeing_mins, 1)
         # First image never has a template; check how many others do
         good = np.where(seeing_diff[1:] >= 0.)[0]
         frac = (good.size)/float(dataSlice[self.seeingCol].size)
         return frac
+
 
 class UniformityMetric(BaseMetric):
     """
     Calculate how uniformly the observations are spaced in time.  Returns a value between -1 and 1.
     A value of zero means the observations are perfectly uniform.
     """
+
     def __init__(self, expMJDCol='expMJD', units='',
                  surveyLength=10., **kwargs):
         """surveyLength = time span of survey (years) """
         self.expMJDCol = expMJDCol
-        super(UniformityMetric,self).__init__(col=self.expMJDCol, units=units, **kwargs)
+        super(UniformityMetric, self).__init__(col=self.expMJDCol, units=units, **kwargs)
         self.surveyLength = surveyLength
 
-    def run(self,dataSlice, slicePoint=None):
+    def run(self, dataSlice, slicePoint=None):
         """Based on how a KS-Test works:
         Look at the cumulative distribution of observations dates,
         and compare to a uniform cumulative distribution.
@@ -203,17 +212,17 @@ class UniformityMetric(BaseMetric):
             return 1
         # Scale dates to lie between 0 and 1, where 0 is the first observation date and 1 is surveyLength
         dates = (dataSlice[self.expMJDCol]-dataSlice[self.expMJDCol].min())/(self.surveyLength*365.25)
-        dates.sort() # Just to be sure
-        n_cum = np.arange(1,dates.size+1)/float(dates.size)
+        dates.sort()  # Just to be sure
+        n_cum = np.arange(1, dates.size+1)/float(dates.size)
         D_max = np.max(np.abs(n_cum-dates-dates[1]))
         return D_max
-
 
 
 class RapidRevisitMetric(BaseMetric):
     """
     Calculate uniformity of time between consecutive visits on short timescales (for RAV1).
     """
+
     def __init__(self, timeCol='expMJD', minNvisits=100,
                  dTmin=40.0/60.0/60.0/24.0, dTmax=30.0/60.0/24.0,
                  metricName='RapidRevisit', **kwargs):
@@ -249,11 +258,13 @@ class RapidRevisitMetric(BaseMetric):
         dmax = np.max(np.abs(uniform_dtimes-dtimes-dtimes[1]))
         return dmax
 
+
 class NRevisitsMetric(BaseMetric):
     """
     Calculate the number of (consecutive) visits with time differences less than dT.
     """
-    def __init__(self, timeCol='expMJD', dT=30.0, normed=False, metricName=None,**kwargs):
+
+    def __init__(self, timeCol='expMJD', dT=30.0, normed=False, metricName=None, **kwargs):
         """
         dT = time interval to consider (in minutes, default 30).
         normed = False - returns number of visits
@@ -262,22 +273,23 @@ class NRevisitsMetric(BaseMetric):
         units = None
         if metricName is None:
             if normed:
-                metricName = 'Fraction of revisits faster than %.1f minutes' %(dT)
+                metricName = 'Fraction of revisits faster than %.1f minutes' % (dT)
             else:
-                metricName = 'Number of revisits faster than %.1f minutes' %(dT)
+                metricName = 'Number of revisits faster than %.1f minutes' % (dT)
                 units = '#'
         self.timeCol = timeCol
-        self.dT = dT / 60./24. # convert to days
+        self.dT = dT / 60./24.  # convert to days
         self.normed = normed
         super(NRevisitsMetric, self).__init__(col=self.timeCol, units=units, metricName=metricName, **kwargs)
         self.metricDtype = 'int'
 
     def run(self, dataSlice, slicePoint=None):
         dtimes = np.diff(np.sort(dataSlice[self.timeCol]))
-        nFastRevisits = np.size(np.where(dtimes<=self.dT)[0])
+        nFastRevisits = np.size(np.where(dtimes <= self.dT)[0])
         if self.normed:
             nFastRevisits = nFastRevisits / float(np.size(dataSlice[self.timeCol]))
         return nFastRevisits
+
 
 class IntraNightGapsMetric(BaseMetric):
     """
@@ -285,7 +297,7 @@ class IntraNightGapsMetric(BaseMetric):
     """
 
     def __init__(self, timeCol='expMJD', nightCol='night', reduceFunc=np.median,
-                 metricName='Median Intra-Night Gap',**kwargs):
+                 metricName='Median Intra-Night Gap', **kwargs):
         """
 
         """
@@ -293,10 +305,10 @@ class IntraNightGapsMetric(BaseMetric):
         self.timeCol = timeCol
         self.nightCol = nightCol
         self.reduceFunc = reduceFunc
-        super(IntraNightGapsMetric,self).__init__(col=[self.timeCol,self.nightCol] ,
-                                                  units=units, metricName=metricName, **kwargs)
+        super(IntraNightGapsMetric, self).__init__(col=[self.timeCol, self.nightCol],
+                                                   units=units, metricName=metricName, **kwargs)
 
-    def run(self,dataSlice, slicePoint=None):
+    def run(self, dataSlice, slicePoint=None):
         dataSlice.sort(order=self.timeCol)
         dt = np.diff(dataSlice[self.timeCol])
         dn = np.diff(dataSlice[self.nightCol])
@@ -313,8 +325,9 @@ class InterNightGapsMetric(BaseMetric):
     """
     Calculate the gap between consecutive observations between nights.
     """
+
     def __init__(self, timeCol='expMJD', nightCol='night', reduceFunc=np.median,
-                 metricName='Median Inter-Night Gap',**kwargs):
+                 metricName='Median Inter-Night Gap', **kwargs):
         """
 
         """
@@ -322,10 +335,10 @@ class InterNightGapsMetric(BaseMetric):
         self.timeCol = timeCol
         self.nightCol = nightCol
         self.reduceFunc = reduceFunc
-        super(InterNightGapsMetric,self).__init__(col=[self.timeCol,self.nightCol] ,
-                                                  units=units, metricName=metricName, **kwargs)
+        super(InterNightGapsMetric, self).__init__(col=[self.timeCol, self.nightCol],
+                                                   units=units, metricName=metricName, **kwargs)
 
-    def run(self,dataSlice, slicePoint=None):
+    def run(self, dataSlice, slicePoint=None):
         dataSlice.sort(order=self.timeCol)
         unights = np.unique(dataSlice[self.nightCol])
         if np.size(unights) < 2:
@@ -343,8 +356,9 @@ class AveGapMetric(BaseMetric):
     """
     Calculate the gap between consecutive observations.
     """
+
     def __init__(self, timeCol='expMJD', nightCol='night', reduceFunc=np.median,
-                 metricName='AveGap',**kwargs):
+                 metricName='AveGap', **kwargs):
         """
 
         """
@@ -352,10 +366,10 @@ class AveGapMetric(BaseMetric):
         self.timeCol = timeCol
         self.nightCol = nightCol
         self.reduceFunc = reduceFunc
-        super(AveGapMetric,self).__init__(col=[self.timeCol,self.nightCol] ,
-                                          units=units, metricName=metricName, **kwargs)
+        super(AveGapMetric, self).__init__(col=[self.timeCol, self.nightCol],
+                                           units=units, metricName=metricName, **kwargs)
 
-    def run(self,dataSlice, slicePoint=None):
+    def run(self, dataSlice, slicePoint=None):
 
         dataSlice.sort(order=self.timeCol)
         diff = np.diff(dataSlice[self.timeCol])

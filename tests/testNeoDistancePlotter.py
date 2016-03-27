@@ -6,6 +6,7 @@ import lsst.sims.maf.plots as plots
 
 
 class TestNeoDistancePlotter(unittest.TestCase):
+
     def setUp(self):
         names = ['eclipLat', 'eclipLon', 'MaxGeoDist',
                  'NEOHelioX', 'NEOHelioY', 'filter']

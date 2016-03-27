@@ -3,6 +3,7 @@ import matplotlib.pylab as plt
 
 __all__ = ['PlotBundle']
 
+
 class PlotBundle(object):
     """
     Object designed to help organize multiple MetricBundles that will be plotted

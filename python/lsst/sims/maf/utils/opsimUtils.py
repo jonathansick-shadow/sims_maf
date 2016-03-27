@@ -8,6 +8,7 @@ import warnings
 __all__ = ['connectOpsimDb', 'writeConfigs', 'createSQLWhere',
            'getFieldData', 'getSimData', 'scaleBenchmarks', 'calcCoaddedDepth']
 
+
 def connectOpsimDb(database, summaryOnly=False, summaryTable='summary'):
     """
     Convenience function to handle connecting to database.
@@ -30,12 +31,13 @@ def connectOpsimDb(database, summaryOnly=False, summaryTable='summary'):
     if summaryOnly:
         # Connect to just the summary table (might be sqlite created from flat dat output file).
         opsimdb = db.OpsimDatabase(database=database,
-                                   dbTables={'Summary':[summaryTable, 'obsHistID']},
+                                   dbTables={'Summary': [summaryTable, 'obsHistID']},
                                    defaultdbTables = None)
     else:
         # For a basic db connection to the sqlite db files.
         opsimdb = db.OpsimDatabase(database=database)
     return opsimdb
+
 
 def writeConfigs(opsimDb, outDir):
     """
@@ -60,6 +62,7 @@ def writeConfigs(opsimDb, outDir):
     printDict(configDetails, 'Details', f)
     f.close()
 
+
 def createSQLWhere(tag, propTags):
     """
     Create a SQL constraint to identify observations taken for a particular proposal,
@@ -80,14 +83,15 @@ def createSQLWhere(tag, propTags):
     """
     sqlWhere = ''
     if (tag not in propTags) or (len(propTags[tag]) == 0):
-        print 'No %s proposals found' %(tag)
+        print 'No %s proposals found' % (tag)
         # Create a sqlWhere clause that will not return anything as a query result.
         sqlWhere = 'propID like "NO PROP"'
     elif len(propTags[tag]) == 1:
-        sqlWhere = "propID = %d" %(propTags[tag][0])
+        sqlWhere = "propID = %d" % (propTags[tag][0])
     else:
         sqlWhere = "(" + " or ".join(["propID = %d"%(propid) for propid in propTags[tag]]) + ")"
     return sqlWhere
+
 
 def getFieldData(opsimDb, sqlconstraint):
     """
@@ -119,7 +123,7 @@ def getFieldData(opsimDb, sqlconstraint):
         sqlconstraint = sqlconstraint.replace('=', ' = ').replace('(', '').replace(')', '')
         sqlconstraint = sqlconstraint.replace("'", '').replace('"', '')
         # Allow for choosing all but a particular proposal.
-        sqlconstraint = sqlconstraint.replace('! =' , ' !=')
+        sqlconstraint = sqlconstraint.replace('! =', ' !=')
         sqlconstraint = sqlconstraint.replace('  ', ' ')
         sqllist = sqlconstraint.split(' ')
         propids = []
@@ -147,6 +151,7 @@ def getFieldData(opsimDb, sqlconstraint):
     else:
         fieldData = opsimDb.fetchFieldsFromSummaryTable(sqlconstraint)
     return fieldData
+
 
 def getSimData(opsimDb, sqlconstraint, dbcols, stackers=None, tableName='Summary', distinctExpMJD=True,
                groupBy='expMJD'):
@@ -179,7 +184,7 @@ def getSimData(opsimDb, sqlconstraint, dbcols, stackers=None, tableName='Summary
     simData = opsimDb.fetchMetricData(dbcols, sqlconstraint, tableName=tableName,
                                       distinctExpMJD=distinctExpMJD, groupBy=groupBy)
     if len(simData) == 0:
-        raise UserWarning('No data found matching sqlconstraint %s' %(sqlconstraint))
+        raise UserWarning('No data found matching sqlconstraint %s' % (sqlconstraint))
     # Now add the stacker columns.
     if stackers is not None:
         for s in stackers:
@@ -219,20 +224,23 @@ def scaleBenchmarks(runLength, benchmark='design'):
     design['Area'] = 18000
     stretch['Area'] = 20000
 
-    design['nvisits']={'u':56,'g':80, 'r':184, 'i':184, 'z':160, 'y':160}
-    stretch['nvisits']={'u':70,'g':100, 'r':230, 'i':230, 'z':200, 'y':200}
+    design['nvisits'] = {'u': 56, 'g': 80, 'r': 184, 'i': 184, 'z': 160, 'y': 160}
+    stretch['nvisits'] = {'u': 70, 'g': 100, 'r': 230, 'i': 230, 'z': 200, 'y': 200}
 
-    design['skybrightness'] = {'u':21.8, 'g':22., 'r':21.3, 'i':20.0, 'z':19.1, 'y':17.5} # mag/sq arcsec
-    stretch['skybrightness'] = {'u':21.8, 'g':22., 'r':21.3, 'i':20.0, 'z':19.1, 'y':17.5}
+    design['skybrightness'] = {'u': 21.8, 'g': 22., 'r': 21.3,
+                               'i': 20.0, 'z': 19.1, 'y': 17.5}  # mag/sq arcsec
+    stretch['skybrightness'] = {'u': 21.8, 'g': 22., 'r': 21.3, 'i': 20.0, 'z': 19.1, 'y': 17.5}
 
-    design['seeing'] = {'u':0.77, 'g':0.73, 'r':0.7, 'i':0.67, 'z':0.65, 'y':0.63} # arcsec - old seeing values
-    stretch['seeing'] = {'u':0.77, 'g':0.73, 'r':0.7, 'i':0.67, 'z':0.65, 'y':0.63}
+    design['seeing'] = {'u': 0.77, 'g': 0.73, 'r': 0.7, 'i': 0.67,
+                        'z': 0.65, 'y': 0.63}  # arcsec - old seeing values
+    stretch['seeing'] = {'u': 0.77, 'g': 0.73, 'r': 0.7, 'i': 0.67, 'z': 0.65, 'y': 0.63}
 
-    design['FWHMeff'] = {'u':0.92, 'g':0.87, 'r':0.83, 'i':0.80, 'z':0.78, 'y':0.76} # arcsec - new FWHMeff values (scaled from old seeing)
-    stretch['FWHMeff'] = {'u':0.92, 'g':0.87, 'r':0.83, 'i':0.80, 'z':0.78, 'y':0.76}
+    design['FWHMeff'] = {'u': 0.92, 'g': 0.87, 'r': 0.83, 'i': 0.80, 'z': 0.78,
+                         'y': 0.76}  # arcsec - new FWHMeff values (scaled from old seeing)
+    stretch['FWHMeff'] = {'u': 0.92, 'g': 0.87, 'r': 0.83, 'i': 0.80, 'z': 0.78, 'y': 0.76}
 
-    design['singleVisitDepth'] = {'u':23.9,'g':25.0, 'r':24.7, 'i':24.0, 'z':23.3, 'y':22.1}
-    stretch['singleVisitDepth'] = {'u':24.0,'g':25.1, 'r':24.8, 'i':24.1, 'z':23.4, 'y':22.2}
+    design['singleVisitDepth'] = {'u': 23.9, 'g': 25.0, 'r': 24.7, 'i': 24.0, 'z': 23.3, 'y': 22.1}
+    stretch['singleVisitDepth'] = {'u': 24.0, 'g': 25.1, 'r': 24.8, 'i': 24.1, 'z': 23.4, 'y': 22.2}
 
     # Scale the number of visits.
     if runLength != baseline:
@@ -247,7 +255,8 @@ def scaleBenchmarks(runLength, benchmark='design'):
     elif benchmark == 'stretch':
         return stretch
     else:
-        raise ValueError("Benchmark value %s not understood: use 'design' or 'stretch'" %(benchmark))
+        raise ValueError("Benchmark value %s not understood: use 'design' or 'stretch'" % (benchmark))
+
 
 def calcCoaddedDepth(nvisits, singleVisitDepth):
     """

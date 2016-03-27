@@ -5,6 +5,7 @@ import numpy.lib.recfunctions as rfn
 
 __all__ = ['StackerRegistry', 'BaseStacker']
 
+
 class StackerRegistry(type):
     """
     Meta class for Stackers, to build a registry of stacker classes.
@@ -23,11 +24,14 @@ class StackerRegistry(type):
                 modname = modname + '.'
         stackername = modname + name
         if stackername in cls.registry:
-            raise Exception('Redefining stacker %s! (there are >1 stackers with the same name)' %(stackername))
+            raise Exception('Redefining stacker %s! (there are >1 stackers with the same name)' %
+                            (stackername))
         if stackername != 'BaseStacker':
             cls.registry[stackername] = cls
+
     def getClass(cls, stackername):
         return cls.registry[stackername]
+
     def help(cls, doc=False):
         for stackername in sorted(cls.registry):
             if not doc:
@@ -65,7 +69,7 @@ class BaseStacker(object):
         """
         # Are we comparing two classes before instantiation?
         if (self.__class__.__name__ == 'StackerRegistry' and
-            otherStacker.__class__.__name__ == 'StackerRegistry'):
+                otherStacker.__class__.__name__ == 'StackerRegistry'):
             if self.__name__ == otherStacker.__name__:
                 return True
             else:
@@ -79,23 +83,22 @@ class BaseStacker(object):
         # We assume that they are equal, unless they have specific attributes which are different.
         stateNow = dir(self)
         for key in stateNow:
-            if not key.startswith('_') and key!='registry' and key!='run':
+            if not key.startswith('_') and key != 'registry' and key != 'run':
                 if not hasattr(otherStacker, key):
                     return False
                 # If the attribute is from numpy, assume it's an array and test it
-                if type(getattr(self,key)).__module__ == np.__name__:
-                    if not np.array_equal(getattr(self,key), getattr(otherStacker, key)):
+                if type(getattr(self, key)).__module__ == np.__name__:
+                    if not np.array_equal(getattr(self, key), getattr(otherStacker, key)):
                         return False
                 else:
                     # If the attribute is from numpy, assume it's an array and test it
-                    if type(getattr(self,key)).__module__ == np.__name__:
-                        if not np.array_equal(getattr(self,key), getattr(otherStacker, key)):
+                    if type(getattr(self, key)).__module__ == np.__name__:
+                        if not np.array_equal(getattr(self, key), getattr(otherStacker, key)):
                             return False
                     else:
                         if getattr(self, key) != getattr(otherStacker, key):
                             return False
         return True
-
 
     def __ne__(self, otherStacker):
         """
@@ -119,7 +122,7 @@ class BaseStacker(object):
         for col, dtype in zip(self.colsAdded, self.colsAddedDtypes):
             if col in simData.dtype.names:
                 warnings.warn('Warning - column %s already present in simData, will be overwritten.'
-                              %(col))
+                              % (col))
             else:
                 newdtype += ([(col, dtype)])
         newData = np.empty(simData.shape, dtype=newdtype)
@@ -136,12 +139,14 @@ class BaseStacker(object):
         # Add new columns
         if len(simData) == 0:
             return simData
-        simData=self._addStackers(simData)
+        simData = self._addStackers(simData)
         # Run the method to calculate/add new data.
         return self._run(simData)
 
     def _run(self, simData):
         # By moving the calculation of these columns to a separate method, we add the possibility of using
         #  stackers with pandas dataframes. The _addStackers method won't work with dataframes, but the
-        #  _run methods are quite likely to (depending on their details), as often they are just adding another column.
-        raise NotImplementedError('Not Implemented: the child stackers should implement their own _run methods')
+        # _run methods are quite likely to (depending on their details), as often
+        # they are just adding another column.
+        raise NotImplementedError(
+            'Not Implemented: the child stackers should implement their own _run methods')
